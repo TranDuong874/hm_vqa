@@ -29,7 +29,7 @@ if hf_token:
 MODEL_ID = "Qwen/Qwen3-VL-2B-Instruct"
 DEVICE = "cuda"
 FPS = 4.0
-FRAME_BUDGET = 128
+FRAME_BUDGET = 64
 MAX_NEW_TOKENS = 16
 
 MANIFEST_PATH = ROOT / "thirdparty" / "Video-RAG-master" / "evals" / "videomme_json_file.json"

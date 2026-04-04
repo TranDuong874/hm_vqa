@@ -20,8 +20,8 @@ def _load_manifest(path: Path) -> list[dict[str, Any]]:
     return payload
 
 
-def _bucket_key(item: dict[str, Any]) -> tuple[str, str]:
-    return (str(item["duration"]), str(item["domain"]))
+def _bucket_key(item: dict[str, Any], bucket_fields: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(str(item[field]) for field in bucket_fields)
 
 
 def _video_sort_key(item: dict[str, Any]) -> tuple[str, str]:
@@ -33,6 +33,7 @@ def _stratified_video_sample(
     *,
     sample_size: int,
     seed: int,
+    bucket_fields: tuple[str, ...],
 ) -> list[dict[str, Any]]:
     if sample_size <= 0:
         return []
@@ -40,9 +41,9 @@ def _stratified_video_sample(
         return list(sorted(videos, key=_video_sort_key))
 
     rng = random.Random(seed)
-    buckets: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    buckets: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
     for item in videos:
-        buckets[_bucket_key(item)].append(item)
+        buckets[_bucket_key(item, bucket_fields)].append(item)
     for items in buckets.values():
         rng.shuffle(items)
 
@@ -110,6 +111,29 @@ def _stratified_video_sample(
     return sampled
 
 
+def _sample_with_duration_quotas(
+    videos: list[dict[str, Any]],
+    *,
+    duration_quota: dict[str, int],
+    seed: int,
+    bucket_fields: tuple[str, ...],
+) -> list[dict[str, Any]]:
+    sampled: list[dict[str, Any]] = []
+    for duration, quota in duration_quota.items():
+        group = [item for item in videos if str(item["duration"]) == duration]
+        if quota > len(group):
+            raise ValueError(f"Requested {quota} videos for duration={duration}, but only {len(group)} available.")
+        sampled.extend(
+            _stratified_video_sample(
+                group,
+                sample_size=quota,
+                seed=seed,
+                bucket_fields=bucket_fields,
+            )
+        )
+    return sorted(sampled, key=_video_sort_key)
+
+
 def _question_rows(videos: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for item in videos:
@@ -143,7 +167,7 @@ def _build_stats(videos: list[dict[str, Any]]) -> dict[str, Any]:
     video_duration = Counter(str(item["duration"]) for item in videos)
     video_domain = Counter(str(item["domain"]) for item in videos)
     video_subcat = Counter(str(item["sub_category"]) for item in videos)
-    video_buckets = Counter(_bucket_key(item) for item in videos)
+    video_buckets = Counter((str(item["duration"]), str(item["domain"])) for item in videos)
     rows = _question_rows(videos)
     task_type = Counter(str(row["task_type"]) for row in rows)
     return {
@@ -158,11 +182,23 @@ def _build_stats(videos: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Sample a Video-MME development split stratified by duration x domain.")
+    parser = argparse.ArgumentParser(description="Sample a Video-MME development split with optional duration quotas.")
     parser.add_argument("--input-json", default=str(DEFAULT_INPUT))
     parser.add_argument("--output-json", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--sample-size", type=int, default=50)
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument(
+        "--bucket-fields",
+        nargs="+",
+        default=["duration", "domain"],
+        help="Fields used for proportional stratification buckets.",
+    )
+    parser.add_argument(
+        "--duration-quota",
+        nargs="*",
+        default=None,
+        help="Optional per-duration quotas, e.g. short=25 medium=25",
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input_json)
@@ -170,13 +206,42 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     videos = _load_manifest(input_path)
-    sampled = _stratified_video_sample(videos, sample_size=args.sample_size, seed=args.seed)
+    bucket_fields = tuple(args.bucket_fields)
+
+    duration_quota: dict[str, int] | None = None
+    if args.duration_quota:
+        duration_quota = {}
+        for item in args.duration_quota:
+            if "=" not in item:
+                raise ValueError(f"Invalid duration quota item: {item}")
+            key, value = item.split("=", 1)
+            duration_quota[key] = int(value)
+
+    if duration_quota is not None:
+        sampled = _sample_with_duration_quotas(
+            videos,
+            duration_quota=duration_quota,
+            seed=args.seed,
+            bucket_fields=bucket_fields,
+        )
+        sample_size = sum(duration_quota.values())
+    else:
+        sampled = _stratified_video_sample(
+            videos,
+            sample_size=args.sample_size,
+            seed=args.seed,
+            bucket_fields=bucket_fields,
+        )
+        sample_size = int(args.sample_size)
+
     stats = _build_stats(sampled)
 
     payload = {
         "source_json": str(input_path),
-        "sample_size": int(args.sample_size),
+        "sample_size": int(sample_size),
         "seed": int(args.seed),
+        "bucket_fields": list(bucket_fields),
+        "duration_quota": duration_quota,
         "stats": stats,
         "videos": sampled,
     }
