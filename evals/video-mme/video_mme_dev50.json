@@ -1,0 +1,2486 @@
+{
+  "source_json": "thirdparty/Video-RAG-master/evals/videomme_json_file.json",
+  "sample_size": 50,
+  "seed": 7,
+  "stats": {
+    "num_videos": 50,
+    "num_questions": 150,
+    "video_duration": {
+      "long": 15,
+      "medium": 15,
+      "short": 20
+    },
+    "video_domain": {
+      "Artistic Performance": 6,
+      "Film & Television": 6,
+      "Knowledge": 15,
+      "Life Record": 14,
+      "Multilingual": 3,
+      "Sports Competition": 6
+    },
+    "video_sub_category": {
+      "Acrobatics": 1,
+      "Animation": 3,
+      "Athletics": 3,
+      "Biology & Medicine": 1,
+      "Daily Life": 2,
+      "Esports": 1,
+      "Exercise": 1,
+      "Fashion": 3,
+      "Finance & Commerce": 4,
+      "Food": 1,
+      "Football": 1,
+      "Geography": 1,
+      "Handicraft": 1,
+      "Humanity & History": 2,
+      "Life Tip": 3,
+      "Literature & Art": 2,
+      "Magic Show": 1,
+      "Movie & TV Show": 1,
+      "Multilingual": 3,
+      "News Report": 2,
+      "Other Sports": 1,
+      "Pet & Animal": 4,
+      "Stage Play": 1,
+      "Technology": 2,
+      "Travel": 2,
+      "Variety Show": 3
+    },
+    "video_duration_domain": {
+      "long | Artistic Performance": 2,
+      "long | Film & Television": 2,
+      "long | Knowledge": 5,
+      "long | Life Record": 3,
+      "long | Multilingual": 1,
+      "long | Sports Competition": 2,
+      "medium | Artistic Performance": 2,
+      "medium | Film & Television": 2,
+      "medium | Knowledge": 5,
+      "medium | Life Record": 3,
+      "medium | Multilingual": 1,
+      "medium | Sports Competition": 2,
+      "short | Artistic Performance": 2,
+      "short | Film & Television": 2,
+      "short | Knowledge": 5,
+      "short | Life Record": 8,
+      "short | Multilingual": 1,
+      "short | Sports Competition": 2
+    },
+    "question_task_type": {
+      "Action Reasoning": 17,
+      "Action Recognition": 21,
+      "Attribute Perception": 12,
+      "Counting Problem": 13,
+      "Information Synopsis": 21,
+      "OCR Problems": 12,
+      "Object Reasoning": 17,
+      "Object Recognition": 16,
+      "Spatial Perception": 3,
+      "Spatial Reasoning": 6,
+      "Temporal Perception": 3,
+      "Temporal Reasoning": 9
+    }
+  },
+  "videos": [
+    {
+      "video_id": "001",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Humanity & History",
+      "questions": [
+        {
+          "question_id": "001-1",
+          "task_type": "Counting Problem",
+          "question": "When demonstrating the Germany modern Christmas tree is initially decorated with apples, candles and berries, which kind of the decoration has the largest number?",
+          "options": [
+            "A. Apples.",
+            "B. Candles.",
+            "C. Berries.",
+            "D. The three kinds are of the same number."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "001-2",
+          "task_type": "Information Synopsis",
+          "question": "What is the genre of this video?",
+          "options": [
+            "A. It is a news report that introduces the history behind Christmas decorations.",
+            "B. It is a documentary on the evolution of Christmas holiday recipes.",
+            "C. It is a travel vlog exploring Christmas markets around the world.",
+            "D. It is a tutorial on DIY Christmas ornament crafting."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "001-3",
+          "task_type": "Counting Problem",
+          "question": "How many red socks are above the fireplace at the end of this video?",
+          "options": [
+            "A. 1.",
+            "B. 4.",
+            "C. 2.",
+            "D. 3."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "fFjv93ACGo8"
+    },
+    {
+      "video_id": "018",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Literature & Art",
+      "questions": [
+        {
+          "question_id": "018-1",
+          "task_type": "Action Recognition",
+          "question": "According to the video, which finger does not need to press the strings when playing Em9?",
+          "options": [
+            "A. Index finger.",
+            "B. Middle finger.",
+            "C. Ring finger.",
+            "D. Little finger."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "018-2",
+          "task_type": "Counting Problem",
+          "question": "How many kinds of chords are played in the video?",
+          "options": [
+            "A. Eight.",
+            "B. Seven.",
+            "C. Fourteen.",
+            "D. Six."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "018-3",
+          "task_type": "Action Reasoning",
+          "question": "What did the YouTuber do at the latter part of the video?",
+          "options": [
+            "A. He played his favorite tune.",
+            "B. He claimed that he loves the chords mentioned above.",
+            "C. He played some complex chords.",
+            "D. He strung many chords."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "tX8a00l_Dfs"
+    },
+    {
+      "video_id": "033",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Finance & Commerce",
+      "questions": [
+        {
+          "question_id": "033-1",
+          "task_type": "Object Recognition",
+          "question": "Which denominations of bills and/or coins are shown in the animation at the beginning of the video, and what is the total value of these denominations?",
+          "options": [
+            "A. $15.25, including three $5 bills and one quarter.",
+            "B. $2.25, including two $1 bills and one quarter.",
+            "C. $7.25, including one $5 bill, two $1 bills and one quarter.",
+            "D. $10.25, including two $5 bills and one quarter."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "033-2",
+          "task_type": "Object Reasoning",
+          "question": "Which historical figure is visually depicted in a framed portrait in the video?",
+          "options": [
+            "A. Abraham Lincoln.",
+            "B. George Washington.",
+            "C. John F. Kennedy.",
+            "D. Franklin D. Roosevelt."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "033-3",
+          "task_type": "Object Recognition",
+          "question": "In the video, what visual aid is used to compare the nominal minimum wage with its value in 2019 dollars, demonstrating the impact of inflation?",
+          "options": [
+            "A. A map of the United States with states color-coded by their minimum wage laws.",
+            "B. A line graph showing the trend of the federal minimum wage over time.",
+            "C. A line graph with two lines.",
+            "D. A side-by-side comparison of a 2019 dollar bill and a 1938 dollar bill."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "zKyWRRJQbkM"
+    },
+    {
+      "video_id": "040",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Finance & Commerce",
+      "questions": [
+        {
+          "question_id": "040-1",
+          "task_type": "Object Reasoning",
+          "question": "When did the events described in the video take place?",
+          "options": [
+            "A. Between 2014 and 2016.",
+            "B. Between 2020 and 2023.",
+            "C. Between 1997 and 2002.",
+            "D. Between 2006 and 2008."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "040-2",
+          "task_type": "OCR Problems",
+          "question": "What was Amazon's stock price at the peak of the dot-com bubble?",
+          "options": [
+            "A. $7/Share.",
+            "B. $100/Share.",
+            "C. $600/Share.",
+            "D. $300/Share."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "040-3",
+          "task_type": "Information Synopsis",
+          "question": "What is the main content of this video?",
+          "options": [
+            "A. Amazon's development.",
+            "B. The dot-com Bubble.",
+            "C. Company competition.",
+            "D. Stock market."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "5ksVshqVuiM"
+    },
+    {
+      "video_id": "090",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Technology",
+      "questions": [
+        {
+          "question_id": "090-1",
+          "task_type": "Information Synopsis",
+          "question": "According to the video, which of the following statements is correct?",
+          "options": [
+            "A. The main component of sand is pure silicon.",
+            "B. Chips are produced in clean rooms.",
+            "C. There is only one layer of chip in a microchip.",
+            "D. The color of pure silicon is yellow."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "090-2",
+          "task_type": "Information Synopsis",
+          "question": "What is this video mainly about?",
+          "options": [
+            "A. How chips work.",
+            "B. What chips can do.",
+            "C. What are chips.",
+            "D. How chips are produced."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "090-3",
+          "task_type": "OCR Problems",
+          "question": "Based on the video, what is the total number of measurements involved in chip manufacturing?",
+          "options": [
+            "A. 27.",
+            "B. 200.",
+            "C. 700.",
+            "D. 26."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "c9arR8T0Qts"
+    },
+    {
+      "video_id": "107",
+      "duration": "short",
+      "domain": "Film & Television",
+      "sub_category": "Movie & TV Show",
+      "questions": [
+        {
+          "question_id": "107-1",
+          "task_type": "Object Reasoning",
+          "question": "What object is the man in the gray T-shirt pulling?",
+          "options": [
+            "A. A kite.",
+            "B. A balloon.",
+            "C. A ladder.",
+            "D. A helicopter."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "107-2",
+          "task_type": "Attribute Perception",
+          "question": "Whar color is the helicopter in the video?",
+          "options": [
+            "A. Orange.",
+            "B. Pink.",
+            "C. Blue.",
+            "D. Black."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "107-3",
+          "task_type": "Action Reasoning",
+          "question": "What happens after the helicopter takes off in this video?",
+          "options": [
+            "A. It is pulled to ground and crash.",
+            "B. It flies to sky.",
+            "C. It falls into water.",
+            "D. It is hit by a missile."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "2Qno7H4BwAU"
+    },
+    {
+      "video_id": "124",
+      "duration": "short",
+      "domain": "Film & Television",
+      "sub_category": "News Report",
+      "questions": [
+        {
+          "question_id": "124-1",
+          "task_type": "Information Synopsis",
+          "question": "According to the video, which of the following events occurred in India?",
+          "options": [
+            "A. Making a movie about war.",
+            "B. A Bollywood movie broke box office records.",
+            "C. Crops are being burned.",
+            "D. The farmers staged A protest."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "124-2",
+          "task_type": "Information Synopsis",
+          "question": "According to the video, what is the primary demand of farmers?",
+          "options": [
+            "A. Overthrow the government.",
+            "B. More land for farming.",
+            "C. More fertilizer.",
+            "D. Government guarantees of a minimum support price for their crop."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "124-3",
+          "task_type": "Attribute Perception",
+          "question": "What colour is the news presenter's coat?",
+          "options": [
+            "A. Purple.",
+            "B. Yellow.",
+            "C. Pink.",
+            "D. Black."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "c0siCya457M"
+    },
+    {
+      "video_id": "133",
+      "duration": "short",
+      "domain": "Sports Competition",
+      "sub_category": "Esports",
+      "questions": [
+        {
+          "question_id": "133-1",
+          "task_type": "Counting Problem",
+          "question": "How many legends are featured in the video?",
+          "options": [
+            "A. 3.",
+            "B. 4.",
+            "C. 5.",
+            "D. 6."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "133-2",
+          "task_type": "Object Recognition",
+          "question": "Which legend is knocked down in the video?",
+          "options": [
+            "A. The legend who is a wolf.",
+            "B. The legend with two weapons in hands.",
+            "C. The legend with red cloak.",
+            "D. No one is knocked down."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "133-3",
+          "task_type": "Spatial Perception",
+          "question": "Which location serves as the battleground in the fight?",
+          "options": [
+            "A. Behind the nexus.",
+            "B. In the river.",
+            "C. On the mountain.",
+            "D. Near the turret."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "uF3zNOthLAg"
+    },
+    {
+      "video_id": "169",
+      "duration": "short",
+      "domain": "Sports Competition",
+      "sub_category": "Athletics",
+      "questions": [
+        {
+          "question_id": "169-1",
+          "task_type": "Attribute Perception",
+          "question": "Which country do the athletes shown at the beginning of the video come from?",
+          "options": [
+            "A. Switzerland.",
+            "B. Germany.",
+            "C. Brazil.",
+            "D. Hungary."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "169-2",
+          "task_type": "OCR Problems",
+          "question": "Where and when was the diving scene in the video taken?",
+          "options": [
+            "A. Beijing 2008.",
+            "B. Tokyo 2020.",
+            "C. Rio 2016.",
+            "D. Lodon 2012."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "169-3",
+          "task_type": "Counting Problem",
+          "question": "How many times did the two athletes dive together at the same time in the video?",
+          "options": [
+            "A. 3.",
+            "B. 4.",
+            "C. 6.",
+            "D. 8."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "CHlJdMVLV2s"
+    },
+    {
+      "video_id": "201",
+      "duration": "short",
+      "domain": "Artistic Performance",
+      "sub_category": "Variety Show",
+      "questions": [
+        {
+          "question_id": "201-1",
+          "task_type": "Spatial Reasoning",
+          "question": "Based on the beginning of the video, during which holiday was the video most likely recorded?",
+          "options": [
+            "A. Halloween.",
+            "B. Christmas.",
+            "C. Chinese New Year.",
+            "D. Thanksgiving."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "201-2",
+          "task_type": "Action Reasoning",
+          "question": "What caused the sudden fall of the woman in the video?",
+          "options": [
+            "A. She twisted her ankle.",
+            "B. She was tripped.",
+            "C. She was scared by a prank.",
+            "D. Cannot be determined."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "201-3",
+          "task_type": "Counting Problem",
+          "question": "According to the video, how many individuals are in the bathroom?",
+          "options": [
+            "A. 2.",
+            "B. 5.",
+            "C. 4.",
+            "D. 3."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "k74LDvXSnHM"
+    },
+    {
+      "video_id": "217",
+      "duration": "short",
+      "domain": "Artistic Performance",
+      "sub_category": "Acrobatics",
+      "questions": [
+        {
+          "question_id": "217-1",
+          "task_type": "Attribute Perception",
+          "question": "What is the physique of the athletes?",
+          "options": [
+            "A. Three of them have a strong build, while one is thin.",
+            "B. All of them have a strong build.",
+            "C. All of them have a thin physique.",
+            "D. None of the above options is correct."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "217-2",
+          "task_type": "Action Recognition",
+          "question": "Which sports in this video involve athletes utilizing humans as tools?",
+          "options": [
+            "A. Hula hooping.",
+            "B. Nunchakus.",
+            "C. Horse-vaulting.",
+            "D. Rope jumping."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "217-3",
+          "task_type": "Object Recognition",
+          "question": "What do the athletes wear during their performance?",
+          "options": [
+            "A. Red shorts and red pants.",
+            "B. Yellow shorts and red pants.",
+            "C. Yellow shorts and yellow pants.",
+            "D. Red shorts and yellow pants."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "BrrDT_uYQsg"
+    },
+    {
+      "video_id": "225",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Handicraft",
+      "questions": [
+        {
+          "question_id": "225-1",
+          "task_type": "Counting Problem",
+          "question": "How many different kinds of animal faces are made in this video?",
+          "options": [
+            "A. 4.",
+            "B. 3.",
+            "C. 5.",
+            "D. 2."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "225-2",
+          "task_type": "Attribute Perception",
+          "question": "What is the shape of the paper shown in the video?",
+          "options": [
+            "A. Circle.",
+            "B. Rectangle.",
+            "C. Square.",
+            "D. Triangle."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "225-3",
+          "task_type": "Object Recognition",
+          "question": "What is the second paper animal made in this video?",
+          "options": [
+            "A. A pig.",
+            "B. A cat.",
+            "C. A dog.",
+            "D. A monkey."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "BiJtPU9uP0c"
+    },
+    {
+      "video_id": "245",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Fashion",
+      "questions": [
+        {
+          "question_id": "245-1",
+          "task_type": "Object Recognition",
+          "question": "Which outfit is the male protagonist wearing on the train in the video?",
+          "options": [
+            "A. A double-breasted beige coat.",
+            "B. A red and white varsity-style jacket.",
+            "C. A denim shirt with sparkles on the shoulders.",
+            "D. An open, red plaid shirt with a relaxed fit."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "245-2",
+          "task_type": "Object Recognition",
+          "question": "Which musical instrument did the man play upon entering the classroom?",
+          "options": [
+            "A. Trombone.",
+            "B. Flute.",
+            "C. Trumpet.",
+            "D. French horn."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "245-3",
+          "task_type": "Counting Problem",
+          "question": "How many outfits did the male protagonist change in total in the video?",
+          "options": [
+            "A. 1.",
+            "B. 3.",
+            "C. 5.",
+            "D. 7."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "ZO12ZY38FEw"
+    },
+    {
+      "video_id": "249",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Fashion",
+      "questions": [
+        {
+          "question_id": "249-1",
+          "task_type": "Object Recognition",
+          "question": "What is the pregnant woman wearing in the video?",
+          "options": [
+            "A. A strapless, form-fitting dress adorned with sequins.",
+            "B. A mint green dress with a strapless design.",
+            "C. An elegant black dress with long sleeves.",
+            "D. A striking green dress with a large, ruffled detail."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "249-2",
+          "task_type": "Spatial Reasoning",
+          "question": "Where did the video take place?",
+          "options": [
+            "A. Red Carpet at the Oscars.",
+            "B. Fashion show.",
+            "C. Press conference.",
+            "D. Film set."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "249-3",
+          "task_type": "OCR Problems",
+          "question": "What is the total number of nominations received by the movie \"Oppenheimer\"?",
+          "options": [
+            "A. 13.",
+            "B. 12.",
+            "C. 8.",
+            "D. 4."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "OGQ7KwUXuBk"
+    },
+    {
+      "video_id": "251",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Daily Life",
+      "questions": [
+        {
+          "question_id": "251-1",
+          "task_type": "Action Recognition",
+          "question": "Which daily activity is not shown in the video?",
+          "options": [
+            "A. Cleaning the floor.",
+            "B. Eating a meal.",
+            "C. Ironing clothes.",
+            "D. Cooking."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "251-2",
+          "task_type": "Action Recognition",
+          "question": "What is the woman sitting on the floor ready to do at the end of the video?",
+          "options": [
+            "A. To play cell phone.",
+            "B. To play games.",
+            "C. To watch TV.",
+            "D. To read a book."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "251-3",
+          "task_type": "Temporal Perception",
+          "question": "After cleaning her floor in the video, what did the woman do next?",
+          "options": [
+            "A. Frying an egg.",
+            "B. Using a cup to catch water.",
+            "C. Washing her clothes.",
+            "D. Cutting a watermelon."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "1sTQOxXFO44"
+    },
+    {
+      "video_id": "263",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Travel",
+      "questions": [
+        {
+          "question_id": "263-1",
+          "task_type": "Action Recognition",
+          "question": "What type of street performance is showcased in the video?",
+          "options": [
+            "A. Martial art.",
+            "B. Musical instrument performance.",
+            "C. Street dance.",
+            "D. Streetball."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "263-2",
+          "task_type": "Object Recognition",
+          "question": "Which building does the protagonist capture on his phone in the video?",
+          "options": [
+            "A. Pantheon.",
+            "B. The Colosseum.",
+            "C. The Arc de Triomphe.",
+            "D. The temple of Baalbek."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "263-3",
+          "task_type": "Spatial Reasoning",
+          "question": "Where are the final scenes in the video most likely shot?",
+          "options": [
+            "A. Satellite photography.",
+            "B. Drone.",
+            "C. High-rise.",
+            "D. Airplane."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "AyIqI6P8eN8"
+    },
+    {
+      "video_id": "272",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Pet & Animal",
+      "questions": [
+        {
+          "question_id": "272-1",
+          "task_type": "Object Recognition",
+          "question": "What is the animal in this video?",
+          "options": [
+            "A. A mouse.",
+            "B. A rabbit.",
+            "C. A dog.",
+            "D. A echidna."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "272-2",
+          "task_type": "Counting Problem",
+          "question": "How many people appear in this video?",
+          "options": [
+            "A. 1.",
+            "B. 2.",
+            "C. 3.",
+            "D. 4."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "272-3",
+          "task_type": "Attribute Perception",
+          "question": "What is the shape of its nose?",
+          "options": [
+            "A. Triangle.",
+            "B. Sphere.",
+            "C. Long.",
+            "D. Cube."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "YsPwg3dUwjQ"
+    },
+    {
+      "video_id": "278",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Pet & Animal",
+      "questions": [
+        {
+          "question_id": "278-1",
+          "task_type": "Counting Problem",
+          "question": "How many foxes appear in this video?",
+          "options": [
+            "A. 1.",
+            "B. 2.",
+            "C. 3.",
+            "D. 4."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "278-2",
+          "task_type": "Attribute Perception",
+          "question": "What color are the foxes in the video?",
+          "options": [
+            "A. Blue.",
+            "B. Pink.",
+            "C. Black.",
+            "D. Yellow."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "278-3",
+          "task_type": "Action Recognition",
+          "question": "What is the behavior of the fox when a person appears in the video?",
+          "options": [
+            "A. It eats food given by the person.",
+            "B. It lays down near the person.",
+            "C. It sleeps with the person.",
+            "D. It stays on the person's head."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "fQVhppRP4Wo"
+    },
+    {
+      "video_id": "283",
+      "duration": "short",
+      "domain": "Life Record",
+      "sub_category": "Exercise",
+      "questions": [
+        {
+          "question_id": "283-1",
+          "task_type": "Action Recognition",
+          "question": "What exercise is the woman in black doing at the beginning of the video?",
+          "options": [
+            "A. Running.",
+            "B. Jump rope.",
+            "C. Play golf.",
+            "D. Yoga."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "283-2",
+          "task_type": "Action Recognition",
+          "question": "Which sport is not featured in the video?",
+          "options": [
+            "A. Running.",
+            "B. Jump rope.",
+            "C. Play golf.",
+            "D. Cycling."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "283-3",
+          "task_type": "Counting Problem",
+          "question": "How many times does the sport of skipping appear in the video?",
+          "options": [
+            "A. 3.",
+            "B. 2.",
+            "C. 4.",
+            "D. 1."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "UbIVqUDZOs0"
+    },
+    {
+      "video_id": "296",
+      "duration": "short",
+      "domain": "Multilingual",
+      "sub_category": "Multilingual",
+      "questions": [
+        {
+          "question_id": "296-1",
+          "task_type": "Object Recognition",
+          "question": "Which animal is the man's pet depicted in the video?",
+          "options": [
+            "A. Pig.",
+            "B. Turtle.",
+            "C. Crocodile.",
+            "D. Dog."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "296-2",
+          "task_type": "Action Recognition",
+          "question": "Which of the statements is not in the video?",
+          "options": [
+            "A. The man sleeps with his pet.",
+            "B. The man helps his pet brush its teeth.",
+            "C. The man walks with his pet.",
+            "D. Kids ride on the pet."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "296-3",
+          "task_type": "Action Reasoning",
+          "question": "What is the temperament of the pet in the video?",
+          "options": [
+            "A. Irascible.",
+            "B. Shy.",
+            "C. Impatient.",
+            "D. Mild."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "bHt0Riqz0qo"
+    },
+    {
+      "video_id": "313",
+      "duration": "medium",
+      "domain": "Knowledge",
+      "sub_category": "Literature & Art",
+      "questions": [
+        {
+          "question_id": "313-1",
+          "task_type": "Attribute Perception",
+          "question": "What do the two people at the beginning of the video have in common?",
+          "options": [
+            "A. The are both piano-learner.",
+            "B. They both wear glasses.",
+            "C. They are both good at playing the violin.",
+            "D. They both wear black shirt."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "313-2",
+          "task_type": "Action Reasoning",
+          "question": "What is the teacher's attitude toward the student when the student attempts to play middle C on the violin?",
+          "options": [
+            "A. Inspired.",
+            "B. Disappointed.",
+            "C. Appreciated.",
+            "D. Angry."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "313-3",
+          "task_type": "Action Reasoning",
+          "question": "Which of the following statements about the violin-learner in the video is true?",
+          "options": [
+            "A. He keeps improving himself as the video goes on.",
+            "B. He has lost confidence in his playing skills.",
+            "C. He learned the violin because his neck wasn't that good.",
+            "D. He is very enthusiastic when exposed to new playing techniques."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "osRzbY_AdaM"
+    },
+    {
+      "video_id": "331",
+      "duration": "medium",
+      "domain": "Knowledge",
+      "sub_category": "Finance & Commerce",
+      "questions": [
+        {
+          "question_id": "331-1",
+          "task_type": "OCR Problems",
+          "question": "Which company is featured in the video but not mentioned in the audio?",
+          "options": [
+            "A. Coca-Cola.",
+            "B. Apple.",
+            "C. Dairy Queen.",
+            "D. American Express."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "331-2",
+          "task_type": "Object Reasoning",
+          "question": "Suppose Emily purchased some company stock in 2005 at a price of $50 per share. She passed away in 2020, when the stock's market value was $150 per share. If her heir, John, sold the stock in 2023 for $180 per share. Assume the capital gains tax rate is 15%. According to the 'step-up in basis' rule, how much capital gains tax would John need to pay?",
+          "options": [
+            "A. $4.5 per share.",
+            "B. $27 per share.",
+            "C. $19.5 per share.",
+            "D. $15 per share."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "331-3",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the correct order in which the billionaires appear in the video?",
+          "options": [
+            "A. Warren Buffett, Morris Pearl, Elon Musk.",
+            "B. Warren Buffett, Jeff Bezos, Elon Musk.",
+            "C. Warren Buffett, Elon Musk, Jeff Bezos.",
+            "D. Morris Pearl, Jeff Bezos, Elon Musk."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "t6V9i8fFADI"
+    },
+    {
+      "video_id": "357",
+      "duration": "medium",
+      "domain": "Knowledge",
+      "sub_category": "Geography",
+      "questions": [
+        {
+          "question_id": "357-1",
+          "task_type": "Attribute Perception",
+          "question": "What's the lichens possibly like according to its image in the video?",
+          "options": [
+            "A. It is black.",
+            "B. Strip-shaped single-cell aggregates.",
+            "C. Round single cell aggregate.",
+            "D. It can be very huge."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "357-2",
+          "task_type": "Object Reasoning",
+          "question": "What is the main reason that the period is called Boring Billion?",
+          "options": [
+            "A. Full of disasters.",
+            "B. Lack of species diversity.",
+            "C. Geological stability.",
+            "D. Fine weather."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "357-3",
+          "task_type": "Attribute Perception",
+          "question": "What's the main color of Nuna?",
+          "options": [
+            "A. Gray.",
+            "B. Blue.",
+            "C. Green.",
+            "D. Brown."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "DI6SemRT2iY"
+    },
+    {
+      "video_id": "373",
+      "duration": "medium",
+      "domain": "Knowledge",
+      "sub_category": "Life Tip",
+      "questions": [
+        {
+          "question_id": "373-1",
+          "task_type": "OCR Problems",
+          "question": "What is the name of the department on the website?",
+          "options": [
+            "A. Justice.Gov.",
+            "B. Education.Gov.",
+            "C. Defense.Gov.",
+            "D. Travel.State.Gov."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "373-2",
+          "task_type": "Action Reasoning",
+          "question": "How does the displaying link change after is historically clicked?",
+          "options": [
+            "A. Its size grows larger.",
+            "B. Its color turns from dark blue to purple.",
+            "C. It disappears from the website.",
+            "D. An underscore is added to the link."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "373-3",
+          "task_type": "OCR Problems",
+          "question": "Which question is not included in the frequently asked questions displayed on the website?",
+          "options": [
+            "A. How do I create a MyTrabelGov account?",
+            "B. What does the \"Renew Passport\" button look like in my account?",
+            "C. What is the processing time for renewals?",
+            "D. Why don't I see an option to \"Renew Passport\" in my account?"
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "ce_uHxXsUWA"
+    },
+    {
+      "video_id": "378",
+      "duration": "medium",
+      "domain": "Knowledge",
+      "sub_category": "Life Tip",
+      "questions": [
+        {
+          "question_id": "378-1",
+          "task_type": "Attribute Perception",
+          "question": "What is the color of the pneumatic air gun?",
+          "options": [
+            "A. Green.",
+            "B. Red.",
+            "C. Blue.",
+            "D. Orange."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "378-2",
+          "task_type": "Object Reasoning",
+          "question": "What happens to the drill when it is taken out of the orange bucket?",
+          "options": [
+            "A. It is buried in ice.",
+            "B. It is distorted.",
+            "C. It has the color changed.",
+            "D. It is separated into two pieces."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "378-3",
+          "task_type": "Object Recognition",
+          "question": "Which tool does not the man wearing green hat use?",
+          "options": [
+            "A. A hammer drill.",
+            "B. A joist hanger.",
+            "C. A pneumatic air gun.",
+            "D. A tape measure."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "WOGaS19VZ8Q"
+    },
+    {
+      "video_id": "399",
+      "duration": "medium",
+      "domain": "Film & Television",
+      "sub_category": "Animation",
+      "questions": [
+        {
+          "question_id": "399-1",
+          "task_type": "Action Recognition",
+          "question": "What is the attitude of the king towards the hero in front of him?",
+          "options": [
+            "A. Angry.",
+            "B. Trusted.",
+            "C. Disappointed.",
+            "D. Positive."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "399-2",
+          "task_type": "Action Reasoning",
+          "question": "Why does the hero wait until the last moment to save the princess?",
+          "options": [
+            "A. She is not the princess he desires.",
+            "B. He is unable to overcome the monsters.",
+            "C. He mistakenly follows the wrong path.",
+            "D. He seeks to encounter more princesses."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "399-3",
+          "task_type": "Action Reasoning",
+          "question": "Why does the hero take the last monster back?",
+          "options": [
+            "A. He falls in love with the monster princess.",
+            "B. The monster wears the same crown as the princess.",
+            "C. The king wants the monster.",
+            "D. He promises to reveal the location of a hidden treasure."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "I5cFBi02O34"
+    },
+    {
+      "video_id": "427",
+      "duration": "medium",
+      "domain": "Film & Television",
+      "sub_category": "News Report",
+      "questions": [
+        {
+          "question_id": "427-1",
+          "task_type": "Spatial Perception",
+          "question": "In the early part of the video, the interview with the man could likely have been filmed in what location?",
+          "options": [
+            "A. Inside a shopping mall.",
+            "B. On a sports field.",
+            "C. Inside a park.",
+            "D. Inside a laboratory."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "427-2",
+          "task_type": "Object Reasoning",
+          "question": "Based on the video, what are people's concerns about artificially manufactured diamonds?",
+          "options": [
+            "A. Not high quality.",
+            "B. Low production capacity.",
+            "C. Too energy-intensive and not sustainable.",
+            "D. Lack of consumer acceptance."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "427-3",
+          "task_type": "Object Reasoning",
+          "question": "In the early to middle part of the video, there are two women wearing blue clothes. What is their relationship?",
+          "options": [
+            "A. Diamond salesperson and customer.",
+            "B. Sisters.",
+            "C. Reporter and interviewee.",
+            "D. There are no two women wearing blue clothes in the video."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "dTUaWnvIOp4"
+    },
+    {
+      "video_id": "468",
+      "duration": "medium",
+      "domain": "Sports Competition",
+      "sub_category": "Athletics",
+      "questions": [
+        {
+          "question_id": "468-1",
+          "task_type": "Counting Problem",
+          "question": "How many strokes did the athlete in the video use during the race?",
+          "options": [
+            "A. 5.",
+            "B. 3.",
+            "C. 2.",
+            "D. 4."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "468-2",
+          "task_type": "Object Recognition",
+          "question": "Which country does the athlete, who was in first place after touching the wall for the third time in the video, represent?",
+          "options": [
+            "A. Brazil.",
+            "B. USA.",
+            "C. Japan.",
+            "D. China."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "468-3",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the order of the swimming strokes used by the athletes in the video?",
+          "options": [
+            "A. Backstroke, Breaststroke, Butterfly, Freestyle.",
+            "B. Breaststroke, Butterfly, Backstroke, Freestyle.",
+            "C. Butterfly, Backstroke, Breaststroke, Freestyle.",
+            "D. Butterfly, freestyle, backstroke, breaststroke."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "e-XGSYnhUjg"
+    },
+    {
+      "video_id": "474",
+      "duration": "medium",
+      "domain": "Sports Competition",
+      "sub_category": "Other Sports",
+      "questions": [
+        {
+          "question_id": "474-1",
+          "task_type": "OCR Problems",
+          "question": "What is the final score of the player DING?",
+          "options": [
+            "A. 129.",
+            "B. 147.",
+            "C. 0.",
+            "D. 112."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "474-2",
+          "task_type": "Action Recognition",
+          "question": "What action does the judge take when the player pockets the black ball while other balls are still on the table?",
+          "options": [
+            "A. He re-racks the black ball.",
+            "B. He removes the black ball.",
+            "C. He adds an extra black ball.",
+            "D. He replaces the black ball with a red one."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "474-3",
+          "task_type": "Action Recognition",
+          "question": "How does the player pocket the green ball?",
+          "options": [
+            "A. He throws the cue stick at the ball, making it spin and fall into the pocket.",
+            "B. He uses the rest and takes a shot.",
+            "C. He lies down on the table and blows on the ball.",
+            "D. He uses a slingshot to launch the ball into the pocket."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "FYqSATdr62Q"
+    },
+    {
+      "video_id": "490",
+      "duration": "medium",
+      "domain": "Artistic Performance",
+      "sub_category": "Stage Play",
+      "questions": [
+        {
+          "question_id": "490-1",
+          "task_type": "Spatial Reasoning",
+          "question": "What is the event in the video?",
+          "options": [
+            "A. The Grammy Awards.",
+            "B. The London 2012 Olympic Games.",
+            "C. The Super Bowl Halftime Show.",
+            "D. The Brit Awards."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "490-2",
+          "task_type": "Object Recognition",
+          "question": "What significant object is present on the stage?",
+          "options": [
+            "A. An oversized guitar.",
+            "B. A large drum set.",
+            "C. A grand piano.",
+            "D. A giant bell."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "490-3",
+          "task_type": "Spatial Reasoning",
+          "question": "What type of venue is the man performing according to the video?",
+          "options": [
+            "A. A large stadium.",
+            "B. A small, intimate club.",
+            "C. A private event space.",
+            "D. An open-air festival."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "azZZZbSwLQght"
+    },
+    {
+      "video_id": "503",
+      "duration": "medium",
+      "domain": "Artistic Performance",
+      "sub_category": "Variety Show",
+      "questions": [
+        {
+          "question_id": "503-1",
+          "task_type": "OCR Problems",
+          "question": "According to the video, what is written on the judge's table?",
+          "options": [
+            "A. Monster.",
+            "B. Hollywood.",
+            "C. America Idol.",
+            "D. I am Tongi."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "503-2",
+          "task_type": "Action Reasoning",
+          "question": "According to the video, why did the judges on stage cry?",
+          "options": [
+            "A. Tongi's singing was too awful.",
+            "B. Moved by Tongi's singing.",
+            "C. One of the judges just lost their father.",
+            "D. Unable to determine."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "503-3",
+          "task_type": "Information Synopsis",
+          "question": "What is the video about?",
+          "options": [
+            "A. A storytelling program.",
+            "B. A movie shooting scene.",
+            "C. A talent show.",
+            "D. Singing tutorial."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "S_MAesZsnMk"
+    },
+    {
+      "video_id": "532",
+      "duration": "medium",
+      "domain": "Life Record",
+      "sub_category": "Food",
+      "questions": [
+        {
+          "question_id": "532-1",
+          "task_type": "Temporal Perception",
+          "question": "What is the third restaurant featured in the video?",
+          "options": [
+            "A. Burpin' Burger Aloha.",
+            "B. COMRADE.",
+            "C. LYNN's Table.",
+            "D. Jean Juan' FRENCH MEX."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "532-2",
+          "task_type": "Action Recognition",
+          "question": "How does the waiter in LYNN's Table wash the dishes?",
+          "options": [
+            "A. Brush the dishes.",
+            "B. Wash with a rag.",
+            "C. Use a Dishwasher.",
+            "D. Lick with their tongue."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "532-3",
+          "task_type": "Action Reasoning",
+          "question": "Why does the Chinese restaurant last seen in the clip of the restaurant Burpin' Burger close its doors?",
+          "options": [
+            "A. The owner of the restaurant is going out.",
+            "B. This restaurant is closed because it's time.",
+            "C. A White-haired man empties this restaurant while eating at the buffet.",
+            "D. There's been a complaint about the restaurant."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "tdAVvYsU8q8"
+    },
+    {
+      "video_id": "576",
+      "duration": "medium",
+      "domain": "Life Record",
+      "sub_category": "Pet & Animal",
+      "questions": [
+        {
+          "question_id": "576-1",
+          "task_type": "Action Recognition",
+          "question": "What does the squirrel do in this video?",
+          "options": [
+            "A. Eating food.",
+            "B. Wrestling with a doll.",
+            "C. Climbing on a tree.",
+            "D. Lying down and sleeping."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "576-2",
+          "task_type": "Action Recognition",
+          "question": "What does the yellow cat with black spots do in this video?",
+          "options": [
+            "A. Fights with people.",
+            "B. Climbs on wall.",
+            "C. Explores a hole.",
+            "D. Eats foods in a microwave oven."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "576-3",
+          "task_type": "Action Recognition",
+          "question": "What does the white parrot do in this video?",
+          "options": [
+            "A. Drinking water.",
+            "B. Shouting to a mug.",
+            "C. Finding food.",
+            "D. Quarreling with others."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "LFGE_8SoYVA"
+    },
+    {
+      "video_id": "579",
+      "duration": "medium",
+      "domain": "Life Record",
+      "sub_category": "Pet & Animal",
+      "questions": [
+        {
+          "question_id": "579-1",
+          "task_type": "Action Recognition",
+          "question": "What does the polar bear do in this video?",
+          "options": [
+            "A. Attempting to escape.",
+            "B. Searching for food.",
+            "C. Swinging with a cub.",
+            "D. Running on the glacier."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "579-2",
+          "task_type": "Action Recognition",
+          "question": "What does the monkey do to the woman?",
+          "options": [
+            "A. Pulling her hair.",
+            "B. Begging for food.",
+            "C. Climbing on her.",
+            "D. Stealing things from her."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "579-3",
+          "task_type": "Action Recognition",
+          "question": "What does the brown horse do to the boy with blue costume?",
+          "options": [
+            "A. Allowing the boy ride on it.",
+            "B. Eating food in the boy's hand.",
+            "C. Pulling his costume hat.",
+            "D. Ignoring the boy."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "a3o9a6pBKz8"
+    },
+    {
+      "video_id": "599",
+      "duration": "medium",
+      "domain": "Multilingual",
+      "sub_category": "Multilingual",
+      "questions": [
+        {
+          "question_id": "599-1",
+          "task_type": "OCR Problems",
+          "question": "What time did the heroine in the video turn off her alarm clock?",
+          "options": [
+            "A. 8:24.",
+            "B. 9:24.",
+            "C. 6:24.",
+            "D. Not mentioned in the video."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "599-2",
+          "task_type": "Temporal Reasoning",
+          "question": "Which of the following options correctly sorts the events of the following heroines in chronological order?\n① Study\n② Make the bed\n③ Eat breakfast\n④ Exercise at home",
+          "options": [
+            "A. ②①③④.",
+            "B. ②④③①.",
+            "C. ②③①④.",
+            "D. ③②①④."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "599-3",
+          "task_type": "OCR Problems",
+          "question": "How much money can you save by purchasing the course through the link and promo code shared by the heroine in the video?",
+          "options": [
+            "A. 11550 rubles.",
+            "B. 16500 rubles.",
+            "C. 4950 rubles.",
+            "D. 21,450 rubles."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "0JjgoicpYkU"
+    },
+    {
+      "video_id": "605",
+      "duration": "long",
+      "domain": "Knowledge",
+      "sub_category": "Humanity & History",
+      "questions": [
+        {
+          "question_id": "605-1",
+          "task_type": "Information Synopsis",
+          "question": "What's the main idea of the video?",
+          "options": [
+            "A. What did the French gain from World War One.",
+            "B. Why the Austro-Hungarian Empire was divided.",
+            "C. The process of World War One.",
+            "D. How the Austro-Hungarian Empire rises and falls."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "605-2",
+          "task_type": "Object Recognition",
+          "question": "Which of the following things mentioned in the video was not the cause of the split of the country?",
+          "options": [
+            "A. The tolerance towards its minorities that makes them strong enough.",
+            "B. The WW1.",
+            "C. The communist revolution in Russia.",
+            "D. The uneven economic growth between the two regions."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "605-3",
+          "task_type": "Object Reasoning",
+          "question": "In the middle of the video a shield appears on a mountain in Central Europe, what does this stand for?",
+          "options": [
+            "A. The impassable Alps.",
+            "B. The defense forces of Western Europe and Russia.",
+            "C. The battlefield between Western Europe and Russia.",
+            "D. A buffer zone between Western Europe and Russia."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "xKiRmesHWIA"
+    },
+    {
+      "video_id": "623",
+      "duration": "long",
+      "domain": "Knowledge",
+      "sub_category": "Biology & Medicine",
+      "questions": [
+        {
+          "question_id": "623-1",
+          "task_type": "Information Synopsis",
+          "question": "What is the primary focus of the speaker's presentation in the video?",
+          "options": [
+            "A. The impact of sleep quality on cognitive function and daily productivity.",
+            "B. Exploring the connection between gut microbiota diversity and mental health.",
+            "C. The relationship between body fat, insulin resistance, and chronic diseases like obesity and diabetes.",
+            "D. The role of insulin in regulating obesity and diabetes, and its direct correlation with maintaining fat mass."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "623-2",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the order in which the following is introduced in the video?\n① The concept of the personal fat threshold.\n② How to grow fat cells.\n③ The relationship between insulin and diet.",
+          "options": [
+            "A. ①②③.",
+            "B. ①③②.",
+            "C. ③①②.",
+            "D. ②①③."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "623-3",
+          "task_type": "OCR Problems",
+          "question": "Which scientists are mentioned in the video?",
+          "options": [
+            "A. L. Pasteur and R. Koch.",
+            "B. J. Watson and F. Crick.",
+            "C. G. Mendel and C. Darwin.",
+            "D. E.P. Joslin and F.G. Benedict."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "gfikT_O4v9A"
+    },
+    {
+      "video_id": "635",
+      "duration": "long",
+      "domain": "Knowledge",
+      "sub_category": "Finance & Commerce",
+      "questions": [
+        {
+          "question_id": "635-1",
+          "task_type": "Object Reasoning",
+          "question": "What is the core distinction between American Express and companies like Visa and Mastercard as described in the video?",
+          "options": [
+            "A. Amex focuses on a closed-loop system, while Visa and Mastercard operate on an open-loop system.",
+            "B. Amex primarily targets affluent customers, whereas Visa and Mastercard focus on a broader customer base.",
+            "C. AmEx offers superior rewards programs compared to Visa and Mastercard, attracting high-spending customers.",
+            "D. AmEx functions as both a card network and a lender, while Visa and Mastercard primarily act as card networks."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "635-2",
+          "task_type": "Information Synopsis",
+          "question": "Which of the following is NOT a criticism of the current credit scoring system in the US mentioned in the video?",
+          "options": [
+            "A. The system disproportionately disadvantages Black and Hispanic communities due to historical inequalities.",
+            "B. Errors in credit reports are frequent and often difficult for consumers to rectify.",
+            "C. The focus on past financial behavior unfairly penalizes individuals who have experienced hardship.",
+            "D. The system lacks transparency and sufficient government oversight, leading to potential consumer exploitation."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "635-3",
+          "task_type": "Information Synopsis",
+          "question": "Which of the following is NOT a significant factor that cause Discover's success in the video?",
+          "options": [
+            "A. Offering premium travel rewards and airport lounge access to attract affluent customers.",
+            "B. Focusing on a \"spend-centric\" model that encourages card usage through cashback rewards.",
+            "C. Targeting middle-class consumers with no annual fees and simple rewards structures.",
+            "D. Prioritizing online business operations and 24/7 customer service."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "oue5A-7Hpx4"
+    },
+    {
+      "video_id": "680",
+      "duration": "long",
+      "domain": "Knowledge",
+      "sub_category": "Life Tip",
+      "questions": [
+        {
+          "question_id": "680-1",
+          "task_type": "Information Synopsis",
+          "question": "What is the main topic about the video?",
+          "options": [
+            "A. It is an animation demonstration of computer systems.",
+            "B. It is a computer course for people new to working with computers.",
+            "C. It teaches technology fundamentals of computer.",
+            "D. All of the above."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "680-2",
+          "task_type": "Temporal Reasoning",
+          "question": "In what sequence are the following topics introduced in this video?\n(a) Internet Safety: Your Browser's Security Features.\n(b) Basic Parts of a Computer.\n(c) Mac OS X Basics: Getting Started with the Desktop\n(d) Understanding Operating Systems",
+          "options": [
+            "A. (a)(b)(c)(d).",
+            "B. (b)(d)(a)(c).",
+            "C. (a)(d)(c)(b).",
+            "D. (b)(a)(c)(d)."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "680-3",
+          "task_type": "Action Reasoning",
+          "question": "According to this video, what can people do if they lose their important files on the computers?",
+          "options": [
+            "A. Use backup software such as Time Machine when the computer breaks down.",
+            "B. Ask after-sales service for help if something happens to the computer and backup drive.",
+            "C. Download what they have backed up in the cloud if they have access to cloud service.",
+            "D. Recover from the backup hard drives even if the drives get burnt."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "y2kg3MOk1sY"
+    },
+    {
+      "video_id": "683",
+      "duration": "long",
+      "domain": "Knowledge",
+      "sub_category": "Technology",
+      "questions": [
+        {
+          "question_id": "683-1",
+          "task_type": "Information Synopsis",
+          "question": "Which of the following statements about the first cilp of the video presented by the speaker is incorrect?",
+          "options": [
+            "A. The first woman asks ChatGPT to write a sentence in Tagalog.",
+            "B. A woman uses ChatGPT to tutor her four kids.",
+            "C. The fourth person thinks that ChatGPT contribute more to the work than himself.",
+            "D. Someone mentions the usefulness of ChatGPT in code-writing."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "683-2",
+          "task_type": "Object Reasoning",
+          "question": "What can you do with GPT-4 Turbo as described in the video?",
+          "options": [
+            "A. Enter 32K context length.",
+            "B. Ask about news happening in June 2023.",
+            "C. Ask 6 different people to read the text aloud to you.",
+            "D. Using xlsx mode."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "683-3",
+          "task_type": "Information Synopsis",
+          "question": "Which of the following can best summarize the video?",
+          "options": [
+            "A. The launch and explaination of GPT-4 turbo and GPTs.",
+            "B. Announcing the establishment of OpenAI.",
+            "C. Explaination of the usage of already launched modules.",
+            "D. GPTs and some relevant API."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "U9mJuUkhUzk"
+    },
+    {
+      "video_id": "693",
+      "duration": "long",
+      "domain": "Film & Television",
+      "sub_category": "Animation",
+      "questions": [
+        {
+          "question_id": "693-1",
+          "task_type": "Action Recognition",
+          "question": "What do the people in the village do according to the video?",
+          "options": [
+            "A. Build their village.",
+            "B. Rob something from people in the sky.",
+            "C. Protect their village from robbers.",
+            "D. Participate in the war."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "693-2",
+          "task_type": "Action Reasoning",
+          "question": "Based on the video, why do the two people in the moving giant castle get out?",
+          "options": [
+            "A. To get more energy for the giant castle.",
+            "B. To argue with each other.",
+            "C. To fight with enemies.",
+            "D. To have a break."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "693-3",
+          "task_type": "Information Synopsis",
+          "question": "As depicted in the video, what is the final story's theme?",
+          "options": [
+            "A. A man fights against zombies.",
+            "B. A man saves his village intruded by zombies.",
+            "C. A father saves his child.",
+            "D. A village building story."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "dXUXfyiX2lA"
+    },
+    {
+      "video_id": "696",
+      "duration": "long",
+      "domain": "Film & Television",
+      "sub_category": "Animation",
+      "questions": [
+        {
+          "question_id": "696-1",
+          "task_type": "Action Recognition",
+          "question": "What is the power of the song according to the video?",
+          "options": [
+            "A. Inspires positive emotions.",
+            "B. Bestows gifts upon listeners.",
+            "C. Creates excitement in people.",
+            "D. Transports listeners to another realm."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "696-2",
+          "task_type": "Action Reasoning",
+          "question": "What do heroes of legend use to defeat the enemy based on the video?",
+          "options": [
+            "A. Their wisdom.",
+            "B. A big robot.",
+            "C. Their superpower.",
+            "D. Power of music."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "696-3",
+          "task_type": "Information Synopsis",
+          "question": "What is the topic of this video?",
+          "options": [
+            "A. Music.",
+            "B. Friendship.",
+            "C. Power.",
+            "D. Multi-dimension."
+          ],
+          "answer": "A",
+          "response": ""
+        }
+      ],
+      "url": "I4yye8mUzWg"
+    },
+    {
+      "video_id": "757",
+      "duration": "long",
+      "domain": "Sports Competition",
+      "sub_category": "Football",
+      "questions": [
+        {
+          "question_id": "757-1",
+          "task_type": "Information Synopsis",
+          "question": "What is the topic of the video?",
+          "options": [
+            "A. An in-depth exploration of tactics used in the 2005 Champions League final match.",
+            "B. A play-by-play breakdown and tactical analysis of Liverpool's miraculous comeback victory in the 2005 Champions League final.",
+            "C. The journey and events leading up to Milan and Liverpool's meeting in the 2005 Champions League final.",
+            "D. None of the above."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "757-2",
+          "task_type": "Object Reasoning",
+          "question": "What was the main reason for the success of the club represented by the white team at the beginning of the video?",
+          "options": [
+            "A. A clever management team that strengthens the squad in the middle of success.",
+            "B. An exclusive focus on developing a strong defensive lineup.",
+            "C. The introduction of a completely new tactical system.",
+            "D. Relying on the talent of a single star player to carry the team forward."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "757-3",
+          "task_type": "Temporal Perception",
+          "question": "How would you describe the team in red's performance in the game at the beginning of the video?",
+          "options": [
+            "A. Dominant throughout the match, with a consistent lead from the start.",
+            "B. Struggling to find form, ultimately resulting in a defeat.",
+            "C. A tale of two halves, with a historic comeback from 3-0 down to win the final.",
+            "D. Defensive, with an emphasis on counter-attacks and no goals scored."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "jdQ-20JEmgc"
+    },
+    {
+      "video_id": "767",
+      "duration": "long",
+      "domain": "Sports Competition",
+      "sub_category": "Athletics",
+      "questions": [
+        {
+          "question_id": "767-1",
+          "task_type": "Object Reasoning",
+          "question": "Why did the players of the Polish team feel down after the first set of games in the video?",
+          "options": [
+            "A. They failed in the last handover.",
+            "B. They finished the game but didn't break the record.",
+            "C. They were disqualified due to a rule violation.",
+            "D. They were injured during the games and couldn't continue."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "767-2",
+          "task_type": "Object Reasoning",
+          "question": "Why did the French team have no results in the second group of games in the video?",
+          "options": [
+            "A. Because they were disqualified for starting the race before the official signal.",
+            "B. Because they were unable to participate in the second group of games due to a scheduling conflict.",
+            "C. Because they used performance-enhancing substances in the second group of games.",
+            "D. Because they dropped the baton during their final handover."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "767-3",
+          "task_type": "Object Recognition",
+          "question": "Which team in the video has the best performance?",
+          "options": [
+            "A. Team Denmark.",
+            "B. Team USA.",
+            "C. Team Germany.",
+            "D. Team Jamaica."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "LqaSTy0swNE"
+    },
+    {
+      "video_id": "800",
+      "duration": "long",
+      "domain": "Artistic Performance",
+      "sub_category": "Magic Show",
+      "questions": [
+        {
+          "question_id": "800-1",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the sequence in which the following magic tricks are performed in this video?\n(a) Joker inside the black Jacks sandwich is mysteriously replaced with the randomly chosen card.\n(b) The positions of Aces and random cards are swapped.\n(c) After a full circle of mixing up, the piles go back to where they started.\n(d) The order of cards is recovered from chaos.",
+          "options": [
+            "A. (c)(b)(a)(d).",
+            "B. (b)(a)(d)(c).",
+            "C. (d)(a)(c)(b).",
+            "D. (a)(c)(d)(b)."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "800-2",
+          "task_type": "Information Synopsis",
+          "question": "What is the main focus of this video?",
+          "options": [
+            "A. Experience the supernatural with this magician's ability to communicate with spirits!.",
+            "B. The card trick and magic in tonight's video will fool you 99.99% of the time.",
+            "C. Witness the incredible levitation powers of this magician!.",
+            "D. Discover the secrets of time travel through this mind-bending magic performance!."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "800-3",
+          "task_type": "Attribute Perception",
+          "question": "According to the video, which magic trick has a tutorial?",
+          "options": [
+            "A. Full circle.",
+            "B. Jack Sandwich.",
+            "C. Order from chaos.",
+            "D. Random or Ace."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "Cb91B0wZYLE"
+    },
+    {
+      "video_id": "807",
+      "duration": "long",
+      "domain": "Artistic Performance",
+      "sub_category": "Variety Show",
+      "questions": [
+        {
+          "question_id": "807-1",
+          "task_type": "Action Reasoning",
+          "question": "When the three hosts discuss the ranking of musical competition shows, why do they think \"X Factor\" ranks the highest?",
+          "options": [
+            "A. Because the cast of X Factor is larger.",
+            "B. Because the X factor is original, the program quality is higher.",
+            "C. Because the judges of X Factor will fight for opportunities for the contestants.",
+            "D. Because X Factor was the first music competition program, it opened the curtain on the music competition."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "807-2",
+          "task_type": "Action Reasoning",
+          "question": "Which reality show is NOT ranked first in its respective category based on the order of the three guests in the video?",
+          "options": [
+            "A. Vanderpump Rules.",
+            "B. The Great British Bake Off.",
+            "C. Real Housewives.",
+            "D. America's Next Top Model."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "807-3",
+          "task_type": "Object Reasoning",
+          "question": "In the latter part of the video, what is the relationship between the shows \"Flavor of Love\" and \"To Be Her Best Friend\" as discussed by the three hosts?",
+          "options": [
+            "A. Both shows are fantastic performances.",
+            "B. Both shows lay the groundwork for the fun of flavor, and participants will be made fun of.",
+            "C. Both shows are a response to \"The Bachelor.\".",
+            "D. Cannot be determined."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "dLjOLXmu68M"
+    },
+    {
+      "video_id": "847",
+      "duration": "long",
+      "domain": "Life Record",
+      "sub_category": "Fashion",
+      "questions": [
+        {
+          "question_id": "847-1",
+          "task_type": "Information Synopsis",
+          "question": "What is this video documenting?",
+          "options": [
+            "A. A concert.",
+            "B. Clothing ads.",
+            "C. A clothing fashion walk.",
+            "D. Designer Workshop."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "847-2",
+          "task_type": "Spatial Reasoning",
+          "question": "Where might this walkout take place?",
+          "options": [
+            "A. Italy.",
+            "B. New Zealand.",
+            "C. United States.",
+            "D. South Africa."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "847-3",
+          "task_type": "Spatial Perception",
+          "question": "In the last model gathering, at what time does the green model in the lower left corner of the square appear in the video?",
+          "options": [
+            "A. Front of video.",
+            "B. Middle of the video.",
+            "C. The back end of the video.",
+            "D. Not featured."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "0eJvnKwGThw"
+    },
+    {
+      "video_id": "858",
+      "duration": "long",
+      "domain": "Life Record",
+      "sub_category": "Daily Life",
+      "questions": [
+        {
+          "question_id": "858-1",
+          "task_type": "Information Synopsis",
+          "question": "Which of the following things was not discussed by the heroine while driving to work?",
+          "options": [
+            "A. Preview of the main content of this video.",
+            "B. Her occupation and place of work.",
+            "C. Her job search process.",
+            "D. Some of her experiences at work."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "858-2",
+          "task_type": "Temporal Reasoning",
+          "question": "What time does the heroine in the video get home from get off work?",
+          "options": [
+            "A. Morning.",
+            "B. Noon.",
+            "C. Afternoon.",
+            "D. Night."
+          ],
+          "answer": "A",
+          "response": ""
+        },
+        {
+          "question_id": "858-3",
+          "task_type": "Action Reasoning",
+          "question": "Why did the heroine in the video go shopping at Trader joe's?",
+          "options": [
+            "A. Because she saw a viral TikTok video recommending their frozen pizza.",
+            "B. Because she heard they have a special promotion on toilet paper.",
+            "C. Because she believes their shopping bags are more stylish and trendy compared to other supermarkets.",
+            "D. because she believes the food in Trader Joe's is of higher quality."
+          ],
+          "answer": "D",
+          "response": ""
+        }
+      ],
+      "url": "5i5Be73ESUc"
+    },
+    {
+      "video_id": "865",
+      "duration": "long",
+      "domain": "Life Record",
+      "sub_category": "Travel",
+      "questions": [
+        {
+          "question_id": "865-1",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the correct order in which the following places are introduced in the video?\n(a) Minaki Aman Temple.\n(b) Alhamra.\n(c) Burj Khalifa.\n(d) Machu Picchu.\n(e) Coliseum.",
+          "options": [
+            "A. (a)(c)(b)(e)(d).",
+            "B. (e)(b)(c)(d)(a).",
+            "C. (b)(c)(a)(d)(e).",
+            "D. (a)(b)(c)(d)(e)."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "865-2",
+          "task_type": "Object Reasoning",
+          "question": "Which of the following is the characteristics of the 16th location described in the video?",
+          "options": [
+            "A. It is built from 20,000 volcanic stones.",
+            "B. Its construction began in 1506.",
+            "C. It is one of the most popular tourist attractions in Lebanon.",
+            "D. There is a restaurant and bar on the 122nd floor."
+          ],
+          "answer": "B",
+          "response": ""
+        },
+        {
+          "question_id": "865-3",
+          "task_type": "Counting Problem",
+          "question": "According to the video, how many buildings were built in less than 110 years?",
+          "options": [
+            "A. 1.",
+            "B. 2.",
+            "C. 3.",
+            "D. 4."
+          ],
+          "answer": "C",
+          "response": ""
+        }
+      ],
+      "url": "YEok4Ykw204"
+    },
+    {
+      "video_id": "896",
+      "duration": "long",
+      "domain": "Multilingual",
+      "sub_category": "Multilingual",
+      "questions": [
+        {
+          "question_id": "896-1",
+          "task_type": "Object Reasoning",
+          "question": "What sets apart the third set of stickers from the other two?",
+          "options": [
+            "A. The third set of stickers are animal prints.",
+            "B. The third set of stickers is with botanical patterns.",
+            "C. The third set of stickers has no color.",
+            "D. The third set of stickers is Inexpensive."
+          ],
+          "answer": "C",
+          "response": ""
+        },
+        {
+          "question_id": "896-2",
+          "task_type": "Temporal Reasoning",
+          "question": "What is the proper sequence for the following items used in this video?\n(a) Stickers.\n(b) Watercolor pencils.\n(c) Gems.\n(d) Glue paper.",
+          "options": [
+            "A. (a)(c)(b)(d).",
+            "B. (d)(b)(a)(c).",
+            "C. (b)(a)(d)(c).",
+            "D. (d)(a)(c)(b)."
+          ],
+          "answer": "D",
+          "response": ""
+        },
+        {
+          "question_id": "896-3",
+          "task_type": "Information Synopsis",
+          "question": "What is captured in this video?",
+          "options": [
+            "A. Crafting Tutorial.",
+            "B. Introduction to shopping for handmade products.",
+            "C. Sticker Share.",
+            "D. Individual handmade works are sold online."
+          ],
+          "answer": "B",
+          "response": ""
+        }
+      ],
+      "url": "xIWaK92gRlo"
+    }
+  ]
+}

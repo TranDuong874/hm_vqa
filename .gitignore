@@ -1,0 +1,16 @@
+/.codex
+/dataset
+*.env
+/results
+/cache
+__pycache__/
+/models
+yolov8n.pt
+yolo11n.pt
+.pytest_cache/
+.ruff_cache/
+/cache
+/tests
+tests/
+/pretrained
+thirdparty/*
