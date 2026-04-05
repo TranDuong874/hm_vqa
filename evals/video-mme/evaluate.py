@@ -55,7 +55,7 @@ def parse_args() -> argparse.Namespace:
 
 def select_videos(loader: VideoMMELoader, target_urls: list[str] | None) -> list:
     videos = loader.load()
-    if target_urls is None:
+    if not target_urls:
         return videos
     picked = [video for video in videos if video.url in target_urls]
     picked.sort(key=lambda video: target_urls.index(video.url))
