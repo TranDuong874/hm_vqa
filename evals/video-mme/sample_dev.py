@@ -4,9 +4,16 @@ import argparse
 import json
 import math
 import random
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
+
+CURRENT_DIR = Path(__file__).resolve().parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
+
+from common import ensure_local_video
 
 
 DEFAULT_INPUT = Path("thirdparty/Video-RAG-master/evals/videomme_json_file.json")
@@ -134,6 +141,106 @@ def _sample_with_duration_quotas(
     return sorted(sampled, key=_video_sort_key)
 
 
+def _replacement_candidates(
+    *,
+    all_videos: list[dict[str, Any]],
+    current_item: dict[str, Any],
+    active_urls: set[str],
+    failed_urls: set[str],
+    bucket_fields: tuple[str, ...],
+    enforce_duration: bool,
+    rng: random.Random,
+) -> list[dict[str, Any]]:
+    available = [
+        item
+        for item in all_videos
+        if str(item["url"]) not in active_urls and str(item["url"]) not in failed_urls
+    ]
+    current_bucket = _bucket_key(current_item, bucket_fields)
+    current_duration = str(current_item["duration"])
+
+    def same_bucket(item: dict[str, Any]) -> bool:
+        return _bucket_key(item, bucket_fields) == current_bucket
+
+    def same_duration(item: dict[str, Any]) -> bool:
+        return str(item["duration"]) == current_duration
+
+    stages: list[list[dict[str, Any]]] = []
+    if enforce_duration:
+        stages.append([item for item in available if same_duration(item) and same_bucket(item)])
+        stages.append([item for item in available if same_duration(item)])
+        stages.append([item for item in available if same_bucket(item)])
+    else:
+        stages.append([item for item in available if same_bucket(item)])
+    stages.append(list(available))
+
+    ordered: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for stage in stages:
+        stage = list(stage)
+        rng.shuffle(stage)
+        for item in stage:
+            url = str(item["url"])
+            if url not in seen:
+                ordered.append(item)
+                seen.add(url)
+    return ordered
+
+
+def _validate_and_replace(
+    *,
+    sampled: list[dict[str, Any]],
+    all_videos: list[dict[str, Any]],
+    video_root: Path,
+    allow_download: bool,
+    bucket_fields: tuple[str, ...],
+    duration_quota: dict[str, int] | None,
+    seed: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    rng = random.Random(seed)
+    active_urls = {str(item["url"]) for item in sampled}
+    failed_urls: set[str] = set()
+    replacements: list[dict[str, str]] = []
+    validated: list[dict[str, Any]] = []
+
+    for item in sampled:
+        current = item
+        while True:
+            current_url = str(current["url"])
+            try:
+                ensure_local_video(video_root=video_root, url_id=current_url, allow_download=allow_download)
+                validated.append(current)
+                break
+            except Exception as exc:
+                failed_urls.add(current_url)
+                active_urls.discard(current_url)
+                replacement_pool = _replacement_candidates(
+                    all_videos=all_videos,
+                    current_item=current,
+                    active_urls=active_urls,
+                    failed_urls=failed_urls,
+                    bucket_fields=bucket_fields,
+                    enforce_duration=duration_quota is not None,
+                    rng=rng,
+                )
+                if not replacement_pool:
+                    raise RuntimeError(
+                        f"Could not replace unavailable video url={current_url} while validating sampled manifest."
+                    ) from exc
+                replacement = replacement_pool[0]
+                replacement_url = str(replacement["url"])
+                active_urls.add(replacement_url)
+                replacements.append(
+                    {
+                        "replaced_url": current_url,
+                        "replacement_url": replacement_url,
+                        "reason": str(exc),
+                    }
+                )
+                current = replacement
+    return sorted(validated, key=_video_sort_key), replacements
+
+
 def _question_rows(videos: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for item in videos:
@@ -199,6 +306,9 @@ def main() -> None:
         default=None,
         help="Optional per-duration quotas, e.g. short=25 medium=25",
     )
+    parser.add_argument("--video-root", default="dataset/Video-MME")
+    parser.add_argument("--validate-downloadable", action="store_true")
+    parser.add_argument("--allow-download", action="store_true")
     args = parser.parse_args()
 
     input_path = Path(args.input_json)
@@ -234,6 +344,18 @@ def main() -> None:
         )
         sample_size = int(args.sample_size)
 
+    replacements: list[dict[str, str]] = []
+    if args.validate_downloadable:
+        sampled, replacements = _validate_and_replace(
+            sampled=sampled,
+            all_videos=videos,
+            video_root=Path(args.video_root),
+            allow_download=args.allow_download,
+            bucket_fields=bucket_fields,
+            duration_quota=duration_quota,
+            seed=args.seed,
+        )
+
     stats = _build_stats(sampled)
 
     payload = {
@@ -242,6 +364,10 @@ def main() -> None:
         "seed": int(args.seed),
         "bucket_fields": list(bucket_fields),
         "duration_quota": duration_quota,
+        "video_root": str(args.video_root),
+        "validate_downloadable": bool(args.validate_downloadable),
+        "allow_download": bool(args.allow_download),
+        "replacements": replacements,
         "stats": stats,
         "videos": sampled,
     }
