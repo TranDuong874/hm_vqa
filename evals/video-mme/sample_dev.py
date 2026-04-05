@@ -14,17 +14,22 @@ if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
 from common import ensure_local_video
+from dataloader import DEFAULT_DATASET, DEFAULT_SPLIT, load_official_videomme_rows
 
 
-DEFAULT_INPUT = Path("thirdparty/Video-RAG-master/evals/videomme_json_file.json")
+DEFAULT_INPUT = None
 DEFAULT_OUTPUT = Path("evals/video-mme/video_mme_dev50.json")
 
 
-def _load_manifest(path: Path) -> list[dict[str, Any]]:
+def _load_manifest(path: Path | None, hf_dataset: str, hf_split: str) -> list[dict[str, Any]]:
+    if path is None:
+        return load_official_videomme_rows(hf_dataset, hf_split)
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, list):
-        raise ValueError(f"Expected top-level list in {path}")
-    return payload
+    if isinstance(payload, dict) and "videos" in payload:
+        return list(payload["videos"])
+    if isinstance(payload, list):
+        return payload
+    raise ValueError(f"Unsupported manifest format in {path}")
 
 
 def _bucket_key(item: dict[str, Any], bucket_fields: tuple[str, ...]) -> tuple[str, ...]:
@@ -290,7 +295,9 @@ def _build_stats(videos: list[dict[str, Any]]) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Sample a Video-MME development split with optional duration quotas.")
-    parser.add_argument("--input-json", default=str(DEFAULT_INPUT))
+    parser.add_argument("--input-json", default=None)
+    parser.add_argument("--hf-dataset", default=DEFAULT_DATASET)
+    parser.add_argument("--hf-split", default=DEFAULT_SPLIT)
     parser.add_argument("--output-json", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--sample-size", type=int, default=50)
     parser.add_argument("--seed", type=int, default=7)
@@ -311,11 +318,11 @@ def main() -> None:
     parser.add_argument("--allow-download", action="store_true")
     args = parser.parse_args()
 
-    input_path = Path(args.input_json)
+    input_path = Path(args.input_json) if args.input_json else None
     output_path = Path(args.output_json)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    videos = _load_manifest(input_path)
+    videos = _load_manifest(input_path, args.hf_dataset, args.hf_split)
     bucket_fields = tuple(args.bucket_fields)
 
     duration_quota: dict[str, int] | None = None
@@ -360,6 +367,8 @@ def main() -> None:
 
     payload = {
         "source_json": str(input_path),
+        "source_dataset": args.hf_dataset,
+        "source_split": args.hf_split,
         "sample_size": int(sample_size),
         "seed": int(args.seed),
         "bucket_fields": list(bucket_fields),
