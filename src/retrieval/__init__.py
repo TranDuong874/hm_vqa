@@ -9,6 +9,7 @@ from .core import (
     load_video_frames,
     mean_pool_segments,
     retrieve_top_segments,
+    select_evidence_indices,
     select_evidence_frames,
     select_uniform_frames,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "load_video_frames",
     "mean_pool_segments",
     "retrieve_top_segments",
+    "select_evidence_indices",
     "select_evidence_frames",
     "select_uniform_frames",
 ]

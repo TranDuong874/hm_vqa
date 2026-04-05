@@ -1,14 +1,19 @@
 {
-  "source_json": "thirdparty/Video-RAG-master/evals/videomme_json_file.json",
+  "source_json": null,
+  "source_dataset": "lmms-lab/Video-MME",
+  "source_split": "test",
   "sample_size": 50,
   "seed": 7,
   "bucket_fields": [
+    "duration",
     "domain"
   ],
   "duration_quota": {
     "short": 25,
     "medium": 25
   },
+  "video_root": "dataset/Video-MME",
+  "validate_local": false,
   "stats": {
     "num_videos": 50,
     "num_questions": 150,
@@ -80,6 +85,7 @@
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Humanity & History",
+      "url": "fFjv93ACGo8",
       "questions": [
         {
           "question_id": "001-1",
@@ -91,8 +97,7 @@
             "C. Berries.",
             "D. The three kinds are of the same number."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "001-2",
@@ -104,8 +109,7 @@
             "C. It is a travel vlog exploring Christmas markets around the world.",
             "D. It is a tutorial on DIY Christmas ornament crafting."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "001-3",
@@ -117,17 +121,16 @@
             "C. 2.",
             "D. 3."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "fFjv93ACGo8"
+      ]
     },
     {
       "video_id": "018",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Literature & Art",
+      "url": "tX8a00l_Dfs",
       "questions": [
         {
           "question_id": "018-1",
@@ -139,8 +142,7 @@
             "C. Ring finger.",
             "D. Little finger."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "018-2",
@@ -152,8 +154,7 @@
             "C. Fourteen.",
             "D. Six."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "018-3",
@@ -165,17 +166,16 @@
             "C. He played some complex chords.",
             "D. He strung many chords."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "tX8a00l_Dfs"
+      ]
     },
     {
       "video_id": "033",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "zKyWRRJQbkM",
       "questions": [
         {
           "question_id": "033-1",
@@ -187,8 +187,7 @@
             "C. $7.25, including one $5 bill, two $1 bills and one quarter.",
             "D. $10.25, including two $5 bills and one quarter."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "033-2",
@@ -200,8 +199,7 @@
             "C. John F. Kennedy.",
             "D. Franklin D. Roosevelt."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "033-3",
@@ -213,17 +211,16 @@
             "C. A line graph with two lines.",
             "D. A side-by-side comparison of a 2019 dollar bill and a 1938 dollar bill."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "zKyWRRJQbkM"
+      ]
     },
     {
       "video_id": "034",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "blSnLEZe-sI",
       "questions": [
         {
           "question_id": "034-1",
@@ -235,8 +232,7 @@
             "C. Financial crisis.",
             "D. Quantitative easing."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "034-2",
@@ -248,8 +244,7 @@
             "C. QE makes those so-called safe assets more attractive.",
             "D. Quantitative easing leads to more money in the system."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "034-3",
@@ -261,17 +256,16 @@
             "C. The UK's high national debt.",
             "D. The UK's strong bond market."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "blSnLEZe-sI"
+      ]
     },
     {
       "video_id": "040",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "5ksVshqVuiM",
       "questions": [
         {
           "question_id": "040-1",
@@ -283,8 +277,7 @@
             "C. Between 1997 and 2002.",
             "D. Between 2006 and 2008."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "040-2",
@@ -296,8 +289,7 @@
             "C. $600/Share.",
             "D. $300/Share."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "040-3",
@@ -309,17 +301,16 @@
             "C. Company competition.",
             "D. Stock market."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "5ksVshqVuiM"
+      ]
     },
     {
       "video_id": "046",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Astronomy",
+      "url": "gD0MvkDGAMg",
       "questions": [
         {
           "question_id": "046-1",
@@ -331,8 +322,7 @@
             "C. The role of atmospheric science.",
             "D. The role of astronomical disciplines."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "046-2",
@@ -344,8 +334,7 @@
             "C. Jupiter.",
             "D. Saturn."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "046-3",
@@ -357,17 +346,16 @@
             "C. 5.",
             "D. 2."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "gD0MvkDGAMg"
+      ]
     },
     {
       "video_id": "090",
       "duration": "short",
       "domain": "Knowledge",
       "sub_category": "Technology",
+      "url": "c9arR8T0Qts",
       "questions": [
         {
           "question_id": "090-1",
@@ -379,8 +367,7 @@
             "C. There is only one layer of chip in a microchip.",
             "D. The color of pure silicon is yellow."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "090-2",
@@ -392,8 +379,7 @@
             "C. What are chips.",
             "D. How chips are produced."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "090-3",
@@ -405,17 +391,16 @@
             "C. 700.",
             "D. 26."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "c9arR8T0Qts"
+      ]
     },
     {
       "video_id": "094",
       "duration": "short",
       "domain": "Film & Television",
       "sub_category": "Animation",
+      "url": "M69Sn3OERZo",
       "questions": [
         {
           "question_id": "094-1",
@@ -427,8 +412,7 @@
             "C. Red.",
             "D. Blue."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "094-2",
@@ -440,8 +424,7 @@
             "C. Turtle.",
             "D. Bird."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "094-3",
@@ -453,17 +436,16 @@
             "C. Running.",
             "D. Crying."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "M69Sn3OERZo"
+      ]
     },
     {
       "video_id": "107",
       "duration": "short",
       "domain": "Film & Television",
       "sub_category": "Movie & TV Show",
+      "url": "2Qno7H4BwAU",
       "questions": [
         {
           "question_id": "107-1",
@@ -475,8 +457,7 @@
             "C. A ladder.",
             "D. A helicopter."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "107-2",
@@ -488,8 +469,7 @@
             "C. Blue.",
             "D. Black."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "107-3",
@@ -501,17 +481,16 @@
             "C. It falls into water.",
             "D. It is hit by a missile."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "2Qno7H4BwAU"
+      ]
     },
     {
       "video_id": "124",
       "duration": "short",
       "domain": "Film & Television",
       "sub_category": "News Report",
+      "url": "c0siCya457M",
       "questions": [
         {
           "question_id": "124-1",
@@ -523,8 +502,7 @@
             "C. Crops are being burned.",
             "D. The farmers staged A protest."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "124-2",
@@ -536,8 +514,7 @@
             "C. More fertilizer.",
             "D. Government guarantees of a minimum support price for their crop."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "124-3",
@@ -549,17 +526,16 @@
             "C. Pink.",
             "D. Black."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "c0siCya457M"
+      ]
     },
     {
       "video_id": "132",
       "duration": "short",
       "domain": "Sports Competition",
       "sub_category": "Esports",
+      "url": "4V6G0qYVoBg",
       "questions": [
         {
           "question_id": "132-1",
@@ -571,8 +547,7 @@
             "C. Thunder.",
             "D. Fire."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "132-2",
@@ -584,8 +559,7 @@
             "C. The legend runs away.",
             "D. The enemy is knocked up."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "132-3",
@@ -597,17 +571,16 @@
             "C. An axe.",
             "D. A wheel."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "4V6G0qYVoBg"
+      ]
     },
     {
       "video_id": "133",
       "duration": "short",
       "domain": "Sports Competition",
       "sub_category": "Esports",
+      "url": "uF3zNOthLAg",
       "questions": [
         {
           "question_id": "133-1",
@@ -619,8 +592,7 @@
             "C. 5.",
             "D. 6."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "133-2",
@@ -632,8 +604,7 @@
             "C. The legend with red cloak.",
             "D. No one is knocked down."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "133-3",
@@ -645,17 +616,16 @@
             "C. On the mountain.",
             "D. Near the turret."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "uF3zNOthLAg"
+      ]
     },
     {
       "video_id": "169",
       "duration": "short",
       "domain": "Sports Competition",
       "sub_category": "Athletics",
+      "url": "CHlJdMVLV2s",
       "questions": [
         {
           "question_id": "169-1",
@@ -667,8 +637,7 @@
             "C. Brazil.",
             "D. Hungary."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "169-2",
@@ -680,8 +649,7 @@
             "C. Rio 2016.",
             "D. Lodon 2012."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "169-3",
@@ -693,17 +661,16 @@
             "C. 6.",
             "D. 8."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "CHlJdMVLV2s"
+      ]
     },
     {
       "video_id": "171",
       "duration": "short",
       "domain": "Sports Competition",
       "sub_category": "Other Sports",
+      "url": "FsLaTZmP6Uw",
       "questions": [
         {
           "question_id": "171-1",
@@ -715,8 +682,7 @@
             "C. In 2020.",
             "D. In 2024."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "171-2",
@@ -728,8 +694,7 @@
             "C. The man in red.",
             "D. None of the above."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "171-3",
@@ -741,17 +706,16 @@
             "C. The athlete in black often makes edge balls.",
             "D. None of the above is correct."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "FsLaTZmP6Uw"
+      ]
     },
     {
       "video_id": "201",
       "duration": "short",
       "domain": "Artistic Performance",
       "sub_category": "Variety Show",
+      "url": "k74LDvXSnHM",
       "questions": [
         {
           "question_id": "201-1",
@@ -763,8 +727,7 @@
             "C. Chinese New Year.",
             "D. Thanksgiving."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "201-2",
@@ -776,8 +739,7 @@
             "C. She was scared by a prank.",
             "D. Cannot be determined."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "201-3",
@@ -789,17 +751,16 @@
             "C. 4.",
             "D. 3."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "k74LDvXSnHM"
+      ]
     },
     {
       "video_id": "207",
       "duration": "short",
       "domain": "Artistic Performance",
       "sub_category": "Variety Show",
+      "url": "RqA3LAo75kw",
       "questions": [
         {
           "question_id": "207-1",
@@ -811,8 +772,7 @@
             "C. Singing game.",
             "D. Drawing game."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "207-2",
@@ -824,8 +784,7 @@
             "C. 4.",
             "D. 5."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "207-3",
@@ -837,17 +796,16 @@
             "C. 3.",
             "D. 1."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "RqA3LAo75kw"
+      ]
     },
     {
       "video_id": "217",
       "duration": "short",
       "domain": "Artistic Performance",
       "sub_category": "Acrobatics",
+      "url": "BrrDT_uYQsg",
       "questions": [
         {
           "question_id": "217-1",
@@ -859,8 +817,7 @@
             "C. All of them have a thin physique.",
             "D. None of the above options is correct."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "217-2",
@@ -872,8 +829,7 @@
             "C. Horse-vaulting.",
             "D. Rope jumping."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "217-3",
@@ -885,17 +841,16 @@
             "C. Yellow shorts and yellow pants.",
             "D. Red shorts and yellow pants."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "BrrDT_uYQsg"
+      ]
     },
     {
       "video_id": "225",
       "duration": "short",
       "domain": "Life Record",
       "sub_category": "Handicraft",
+      "url": "BiJtPU9uP0c",
       "questions": [
         {
           "question_id": "225-1",
@@ -907,8 +862,7 @@
             "C. 5.",
             "D. 2."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "225-2",
@@ -920,8 +874,7 @@
             "C. Square.",
             "D. Triangle."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "225-3",
@@ -933,17 +886,16 @@
             "C. A dog.",
             "D. A monkey."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "BiJtPU9uP0c"
+      ]
     },
     {
       "video_id": "245",
       "duration": "short",
       "domain": "Life Record",
       "sub_category": "Fashion",
+      "url": "ZO12ZY38FEw",
       "questions": [
         {
           "question_id": "245-1",
@@ -955,8 +907,7 @@
             "C. A denim shirt with sparkles on the shoulders.",
             "D. An open, red plaid shirt with a relaxed fit."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "245-2",
@@ -968,8 +919,7 @@
             "C. Trumpet.",
             "D. French horn."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "245-3",
@@ -981,17 +931,16 @@
             "C. 5.",
             "D. 7."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "ZO12ZY38FEw"
+      ]
     },
     {
       "video_id": "251",
       "duration": "short",
       "domain": "Life Record",
       "sub_category": "Daily Life",
+      "url": "1sTQOxXFO44",
       "questions": [
         {
           "question_id": "251-1",
@@ -1003,8 +952,7 @@
             "C. Ironing clothes.",
             "D. Cooking."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "251-2",
@@ -1016,8 +964,7 @@
             "C. To watch TV.",
             "D. To read a book."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "251-3",
@@ -1029,17 +976,16 @@
             "C. Washing her clothes.",
             "D. Cutting a watermelon."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "1sTQOxXFO44"
+      ]
     },
     {
       "video_id": "263",
       "duration": "short",
       "domain": "Life Record",
       "sub_category": "Travel",
+      "url": "AyIqI6P8eN8",
       "questions": [
         {
           "question_id": "263-1",
@@ -1051,8 +997,7 @@
             "C. Street dance.",
             "D. Streetball."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "263-2",
@@ -1064,8 +1009,7 @@
             "C. The Arc de Triomphe.",
             "D. The temple of Baalbek."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "263-3",
@@ -1077,17 +1021,16 @@
             "C. High-rise.",
             "D. Airplane."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "AyIqI6P8eN8"
+      ]
     },
     {
       "video_id": "272",
       "duration": "short",
       "domain": "Life Record",
       "sub_category": "Pet & Animal",
+      "url": "YsPwg3dUwjQ",
       "questions": [
         {
           "question_id": "272-1",
@@ -1099,8 +1042,7 @@
             "C. A dog.",
             "D. A echidna."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "272-2",
@@ -1112,8 +1054,7 @@
             "C. 3.",
             "D. 4."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "272-3",
@@ -1125,17 +1066,16 @@
             "C. Long.",
             "D. Cube."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "YsPwg3dUwjQ"
+      ]
     },
     {
       "video_id": "295",
       "duration": "short",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "Lv7cYKTYE2g",
       "questions": [
         {
           "question_id": "295-1",
@@ -1147,8 +1087,7 @@
             "C. Purple.",
             "D. Green."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "295-2",
@@ -1160,8 +1099,7 @@
             "C. The eligibility requirements.",
             "D. The amount of money provided."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "295-3",
@@ -1173,17 +1111,16 @@
             "C. The German government provides financial assistance to those in need.",
             "D. Unemployment is a major problem in Germany."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "Lv7cYKTYE2g"
+      ]
     },
     {
       "video_id": "296",
       "duration": "short",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "bHt0Riqz0qo",
       "questions": [
         {
           "question_id": "296-1",
@@ -1195,8 +1132,7 @@
             "C. Crocodile.",
             "D. Dog."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "296-2",
@@ -1208,8 +1144,7 @@
             "C. The man walks with his pet.",
             "D. Kids ride on the pet."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "296-3",
@@ -1221,17 +1156,16 @@
             "C. Impatient.",
             "D. Mild."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "bHt0Riqz0qo"
+      ]
     },
     {
       "video_id": "300",
       "duration": "short",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "mBD-TPIHbUs",
       "questions": [
         {
           "question_id": "300-1",
@@ -1243,8 +1177,7 @@
             "C. He cannot sit here.",
             "D. He cannot say hello."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "300-2",
@@ -1256,8 +1189,7 @@
             "C. He knows the restaurant's service staff.",
             "D. To show the audience a negative example."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "300-3",
@@ -1269,17 +1201,16 @@
             "C. Because 'ciao' meaning 'hello' might offend people.",
             "D. Unable to determine\"."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "mBD-TPIHbUs"
+      ]
     },
     {
       "video_id": "301",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Humanity & History",
+      "url": "dphq5X-rMew",
       "questions": [
         {
           "question_id": "301-1",
@@ -1291,8 +1222,7 @@
             "C. 3.",
             "D. 1."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "301-2",
@@ -1304,8 +1234,7 @@
             "C. Because Amazonian settlements were in the center of Amazon forest.",
             "D. Because local people all died from diseases."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "301-3",
@@ -1317,17 +1246,16 @@
             "C. European expeditions.",
             "D. Dr.Michael Heckenberger."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "dphq5X-rMew"
+      ]
     },
     {
       "video_id": "318",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Literature & Art",
+      "url": "QdlP8ai8trw",
       "questions": [
         {
           "question_id": "318-1",
@@ -1339,8 +1267,7 @@
             "C. On the cathedral.",
             "D. On the main street of Florence."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "318-2",
@@ -1352,8 +1279,7 @@
             "C. Florence had experienced political turmoil before becoming a republic country.",
             "D. The very stance of the sculpture was taken directly from classical antiquity."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "318-3",
@@ -1365,17 +1291,16 @@
             "C. Overlooking at a battle in the distance.",
             "D. Fighting with giant Goliath."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "QdlP8ai8trw"
+      ]
     },
     {
       "video_id": "333",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "9XCKnN6o19k",
       "questions": [
         {
           "question_id": "333-1",
@@ -1387,8 +1312,7 @@
             "C. Company Executive.",
             "D. Counselor."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "333-2",
@@ -1400,8 +1324,7 @@
             "C. 2011.",
             "D. 2010."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "333-3",
@@ -1413,17 +1336,16 @@
             "C. Expensive.",
             "D. Innovation."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "9XCKnN6o19k"
+      ]
     },
     {
       "video_id": "334",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "257wV-AbKaE",
       "questions": [
         {
           "question_id": "334-1",
@@ -1435,8 +1357,7 @@
             "C. The operational process of money laundering.",
             "D. How to Start a Laundry Business."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "334-2",
@@ -1448,8 +1369,7 @@
             "C. Phase three.",
             "D. Cannot be inferred."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "334-3",
@@ -1461,17 +1381,16 @@
             "C. Pizza parlors, dice, the United Nations emblem.",
             "D. The United Nations emblem, pizza parlors, dice."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "257wV-AbKaE"
+      ]
     },
     {
       "video_id": "340",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Finance & Commerce",
+      "url": "p7HKvqRI_Bo",
       "questions": [
         {
           "question_id": "340-1",
@@ -1483,8 +1402,7 @@
             "C. The core factors that affect stock price fluctuations.",
             "D. How novice investors can participate in stock investment."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "340-2",
@@ -1496,8 +1414,7 @@
             "C. A mouse emerged from the drink.",
             "D. Deliberately raising the price of drinks."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "340-3",
@@ -1509,17 +1426,16 @@
             "C. 2.",
             "D. 5."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "p7HKvqRI_Bo"
+      ]
     },
     {
       "video_id": "346",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Astronomy",
+      "url": "MaAv2IVzqhM",
       "questions": [
         {
           "question_id": "346-1",
@@ -1531,8 +1447,7 @@
             "C. The daily operations of LIGO.",
             "D. The future goals and planned upgrades for LIGO."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "346-2",
@@ -1544,8 +1459,7 @@
             "C. It is located in a plain area next to some cultivated land.",
             "D. It cannot be inferred."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "346-3",
@@ -1557,17 +1471,16 @@
             "C. The Laser Interferometer Gravitational-Wave Observatory.",
             "D. The GEO600 Gravitational Wave Detector."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "MaAv2IVzqhM"
+      ]
     },
     {
       "video_id": "390",
       "duration": "medium",
       "domain": "Knowledge",
       "sub_category": "Technology",
+      "url": "tVcEEw6qbBQ",
       "questions": [
         {
           "question_id": "390-1",
@@ -1579,8 +1492,7 @@
             "C. Both of them.",
             "D. None of them."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "390-2",
@@ -1592,8 +1504,7 @@
             "C. The cross section of an onion root tip.",
             "D. Stomata from a thin sample underneath a leaf."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "390-3",
@@ -1605,17 +1516,16 @@
             "C. Light microscopes do not require electricity.",
             "D. Use tissue paper to clean the lens when it is difficult to see the image clearly even when you are focusing."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "tVcEEw6qbBQ"
+      ]
     },
     {
       "video_id": "394",
       "duration": "medium",
       "domain": "Film & Television",
       "sub_category": "Animation",
+      "url": "V6ui161NyTg",
       "questions": [
         {
           "question_id": "394-1",
@@ -1627,8 +1537,7 @@
             "C. They are best friends to each other.",
             "D. They are different periods of the same person."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "394-2",
@@ -1640,8 +1549,7 @@
             "C. The little girl healed herself and walked out of the shadow of school violence.",
             "D. The little girl helps others overcome autism through painting."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "394-3",
@@ -1653,17 +1561,16 @@
             "C. (3)(2)(1)(4).",
             "D. (1)(4)(3)(2)."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "V6ui161NyTg"
+      ]
     },
     {
       "video_id": "407",
       "duration": "medium",
       "domain": "Film & Television",
       "sub_category": "Movie & TV Show",
+      "url": "QxYHkKLaFmY",
       "questions": [
         {
           "question_id": "407-1",
@@ -1675,8 +1582,7 @@
             "C. Clothes.",
             "D. Glod."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "407-2",
@@ -1688,8 +1594,7 @@
             "C. Blue.",
             "D. Yellow."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "407-3",
@@ -1701,17 +1606,16 @@
             "C. Prevents others taking gold from the castle.",
             "D. Destroys the villege."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "QxYHkKLaFmY"
+      ]
     },
     {
       "video_id": "424",
       "duration": "medium",
       "domain": "Film & Television",
       "sub_category": "News Report",
+      "url": "9QXXL96y3A0",
       "questions": [
         {
           "question_id": "424-1",
@@ -1723,8 +1627,7 @@
             "C. United Kingdom.",
             "D. Japan."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "424-2",
@@ -1736,8 +1639,7 @@
             "C. Implications of declining birth rates on the global stage.",
             "D. Uncertain."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "424-3",
@@ -1749,17 +1651,16 @@
             "C. Decreasing.",
             "D. Cannot determine."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "9QXXL96y3A0"
+      ]
     },
     {
       "video_id": "432",
       "duration": "medium",
       "domain": "Sports Competition",
       "sub_category": "Esports",
+      "url": "OApAF--FqLA",
       "questions": [
         {
           "question_id": "432-1",
@@ -1771,8 +1672,7 @@
             "C. Milio.",
             "D. Twist Fate."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "432-2",
@@ -1784,8 +1684,7 @@
             "C. 3.",
             "D. 4."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "432-3",
@@ -1797,17 +1696,16 @@
             "C. 6.",
             "D. 8."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "OApAF--FqLA"
+      ]
     },
     {
       "video_id": "433",
       "duration": "medium",
       "domain": "Sports Competition",
       "sub_category": "Esports",
+      "url": "Gokw6n0qf-w",
       "questions": [
         {
           "question_id": "433-1",
@@ -1819,8 +1717,7 @@
             "C. Slaining enemy.",
             "D. A big wave of minions gets under the tower."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "433-2",
@@ -1832,8 +1729,7 @@
             "C. Preventing Sion from death.",
             "D. Saving teammates."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "433-3",
@@ -1845,17 +1741,16 @@
             "C. TP.",
             "D. Smite."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         }
-      ],
-      "url": "Gokw6n0qf-w"
+      ]
     },
     {
       "video_id": "469",
       "duration": "medium",
       "domain": "Sports Competition",
       "sub_category": "Athletics",
+      "url": "IQcTd4xZ44o",
       "questions": [
         {
           "question_id": "469-1",
@@ -1867,8 +1762,7 @@
             "C. Move from front to back along the runway.",
             "D. Move from back to front along the runway."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "469-2",
@@ -1880,8 +1774,7 @@
             "C. 3:31.70.",
             "D. 3:31.46."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "469-3",
@@ -1893,17 +1786,16 @@
             "C. Algeria.",
             "D. Norway."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "IQcTd4xZ44o"
+      ]
     },
     {
       "video_id": "471",
       "duration": "medium",
       "domain": "Sports Competition",
       "sub_category": "Other Sports",
+      "url": "vgWlRdNOGx4",
       "questions": [
         {
           "question_id": "471-1",
@@ -1915,8 +1807,7 @@
             "C. 14.",
             "D. 9."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "471-2",
@@ -1928,8 +1819,7 @@
             "C. Ma-Zhang-Ma-Zhang.",
             "D. Zhang-Zhang-Ma-Ma."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "471-3",
@@ -1941,17 +1831,16 @@
             "C. Jun Mizutani.",
             "D. None of the above."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "vgWlRdNOGx4"
+      ]
     },
     {
       "video_id": "501",
       "duration": "medium",
       "domain": "Artistic Performance",
       "sub_category": "Variety Show",
+      "url": "ad_higXixRA",
       "questions": [
         {
           "question_id": "501-1",
@@ -1963,8 +1852,7 @@
             "C. Host of the show.",
             "D. Janitor."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "501-2",
@@ -1976,8 +1864,7 @@
             "C. 4.",
             "D. 5."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "501-3",
@@ -1989,17 +1876,16 @@
             "C. 19.97.",
             "D. 1."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "ad_higXixRA"
+      ]
     },
     {
       "video_id": "507",
       "duration": "medium",
       "domain": "Artistic Performance",
       "sub_category": "Variety Show",
+      "url": "UTzl0lLoAJE",
       "questions": [
         {
           "question_id": "507-1",
@@ -2011,8 +1897,7 @@
             "C. World records of various sports.",
             "D. Customs and cultures of different countries."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "507-2",
@@ -2024,8 +1909,7 @@
             "C. Tallest family: 203.29 cm (6 ft 8.03 in).",
             "D. Largest mouth gape (male)."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "507-3",
@@ -2037,17 +1921,16 @@
             "C. 3.",
             "D. 4."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "UTzl0lLoAJE"
+      ]
     },
     {
       "video_id": "517",
       "duration": "medium",
       "domain": "Artistic Performance",
       "sub_category": "Acrobatics",
+      "url": "dy8AvyRlXpQ",
       "questions": [
         {
           "question_id": "517-1",
@@ -2059,8 +1942,7 @@
             "C. 4.",
             "D. 5."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "517-2",
@@ -2072,8 +1954,7 @@
             "C. They started a choreographed dance routine on the platform.",
             "D. One of the actresses jumped to the swing."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "517-3",
@@ -2085,17 +1966,16 @@
             "C. The actor hanging on the left swing is there to distract the audience with his acrobatic tricks.",
             "D. The actor hanging on the left swing is there to balance the weight distribution of the swings."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "dy8AvyRlXpQ"
+      ]
     },
     {
       "video_id": "525",
       "duration": "medium",
       "domain": "Life Record",
       "sub_category": "Handicraft",
+      "url": "HZJXPm0nhgY",
       "questions": [
         {
           "question_id": "525-1",
@@ -2107,8 +1987,7 @@
             "C. (b)(d)(a)(c).",
             "D. (d)(c)(a)(b)."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "525-2",
@@ -2120,8 +1999,7 @@
             "C. 6.",
             "D. 3."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "525-3",
@@ -2133,17 +2011,16 @@
             "C. A green tree at full moon.",
             "D. A sunflower field."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "HZJXPm0nhgY"
+      ]
     },
     {
       "video_id": "545",
       "duration": "medium",
       "domain": "Life Record",
       "sub_category": "Fashion",
+      "url": "ntdzrNKRH4g",
       "questions": [
         {
           "question_id": "545-1",
@@ -2155,8 +2032,7 @@
             "C. Dress pants, Scrunch socks, Earrings.",
             "D. Earrings, Scrunch socks, Dress pants."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "545-2",
@@ -2168,8 +2044,7 @@
             "C. Lounge Set.",
             "D. Faux Leather Jacket."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "545-3",
@@ -2181,17 +2056,16 @@
             "C. 9 and 12.",
             "D. 11 and 1."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         }
-      ],
-      "url": "ntdzrNKRH4g"
+      ]
     },
     {
       "video_id": "551",
       "duration": "medium",
       "domain": "Life Record",
       "sub_category": "Daily Life",
+      "url": "yfbeNtST6Fs",
       "questions": [
         {
           "question_id": "551-1",
@@ -2203,8 +2077,7 @@
             "C. Shopping app.",
             "D. Video online playing app."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "551-2",
@@ -2216,8 +2089,7 @@
             "C. Tearing down the Christmas tree.",
             "D. Sorting out clothes."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "551-3",
@@ -2229,17 +2101,16 @@
             "C. ②③①.",
             "D. ③②①."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "yfbeNtST6Fs"
+      ]
     },
     {
       "video_id": "563",
       "duration": "medium",
       "domain": "Life Record",
       "sub_category": "Travel",
+      "url": "MIYDzEYfI6U",
       "questions": [
         {
           "question_id": "563-1",
@@ -2251,8 +2122,7 @@
             "C. South Africa.",
             "D. Southeast Asia."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         },
         {
           "question_id": "563-2",
@@ -2264,8 +2134,7 @@
             "C. Because she is a volunteer in the promotion of New Zealand's national culture.",
             "D. Because her travel experiences in other countries made her uncomfortable."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "563-3",
@@ -2277,17 +2146,16 @@
             "C. 12.",
             "D. 11."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "MIYDzEYfI6U"
+      ]
     },
     {
       "video_id": "572",
       "duration": "medium",
       "domain": "Life Record",
       "sub_category": "Pet & Animal",
+      "url": "IjSISLZCKPs",
       "questions": [
         {
           "question_id": "572-1",
@@ -2299,8 +2167,7 @@
             "C. Shredding paper.",
             "D. Using the litter box."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "572-2",
@@ -2312,8 +2179,7 @@
             "C. Running to sofa.",
             "D. Howling and crying."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "572-3",
@@ -2325,17 +2191,16 @@
             "C. 3.",
             "D. 2."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "IjSISLZCKPs"
+      ]
     },
     {
       "video_id": "595",
       "duration": "medium",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "cVIfe0Gxa64",
       "questions": [
         {
           "question_id": "595-1",
@@ -2347,8 +2212,7 @@
             "C. DEKRA.",
             "D. IG."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "595-2",
@@ -2360,8 +2224,7 @@
             "C. 3.",
             "D. 5."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "595-3",
@@ -2373,17 +2236,16 @@
             "C. 25.",
             "D. 29."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         }
-      ],
-      "url": "cVIfe0Gxa64"
+      ]
     },
     {
       "video_id": "596",
       "duration": "medium",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "I48vtTxdaeQ",
       "questions": [
         {
           "question_id": "596-1",
@@ -2395,8 +2257,7 @@
             "C. Implementing real-time image processing algorithms within the camera to detect and remove moiré patterns.",
             "D. Reducing the overall brightness and contrast of the LED screens to minimize interference patterns."
           ],
-          "answer": "B",
-          "response": ""
+          "answer": "B"
         },
         {
           "question_id": "596-2",
@@ -2408,8 +2269,7 @@
             "C. By illustrating how the camera's sensor captures a continuous scene as a series of discrete points, potentially leading to misrepresentation of the original signal.",
             "D. By showing how low-frequency sounds can create the illusion of higher-pitched tones."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "596-3",
@@ -2421,17 +2281,16 @@
             "C. Camera Settings: Using a camera with a high frame rate to avoid temporal aliasing and adjusting the aperture and focus to potentially blur any moiré patterns.",
             "D. All of the above factors are important considerations for minimizing moiré in this scenario."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "I48vtTxdaeQ"
+      ]
     },
     {
       "video_id": "600",
       "duration": "medium",
       "domain": "Multilingual",
       "sub_category": "Multilingual",
+      "url": "91fi6egFsyA",
       "questions": [
         {
           "question_id": "600-1",
@@ -2443,8 +2302,7 @@
             "C. Amina.",
             "D. Ghizlane."
           ],
-          "answer": "A",
-          "response": ""
+          "answer": "A"
         },
         {
           "question_id": "600-2",
@@ -2456,8 +2314,7 @@
             "C. High taxes.",
             "D. Cannot be determined."
           ],
-          "answer": "C",
-          "response": ""
+          "answer": "C"
         },
         {
           "question_id": "600-3",
@@ -2469,11 +2326,9 @@
             "C. Lithuania.",
             "D. Italy."
           ],
-          "answer": "D",
-          "response": ""
+          "answer": "D"
         }
-      ],
-      "url": "91fi6egFsyA"
+      ]
     }
   ]
 }

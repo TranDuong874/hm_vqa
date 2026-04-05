@@ -14,6 +14,8 @@ class AnswerConfig:
     model_id: str = "Qwen/Qwen3-VL-2B-Instruct"
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     max_new_tokens: int = 32
+    load_in_4bit: bool = False
+    load_in_8bit: bool = False
 
 
 @dataclass(slots=True)
@@ -47,11 +49,37 @@ class QwenVLMAnswerer:
     def load(self) -> None:
         if self.model is not None and self.processor is not None:
             return
+        model_kwargs: dict[str, object] = {
+            "attn_implementation": "sdpa",
+        }
+        if self.config.load_in_4bit or self.config.load_in_8bit:
+            try:
+                from transformers import BitsAndBytesConfig
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Quantized loading requires bitsandbytes support in transformers and the "
+                    "'bitsandbytes' package to be installed."
+                ) from exc
+
+            model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=self.config.load_in_4bit,
+                load_in_8bit=self.config.load_in_8bit,
+                bnb_4bit_compute_dtype=torch.bfloat16 if self.config.device == "cuda" else torch.float32,
+            )
+            if self.config.device == "cuda":
+                model_kwargs["device_map"] = {"": torch.cuda.current_device()}
+            else:
+                model_kwargs["device_map"] = {"": self.config.device}
+            model_kwargs["low_cpu_mem_usage"] = True
+        else:
+            model_kwargs["torch_dtype"] = torch.bfloat16 if self.config.device == "cuda" else torch.float32
+
         self.model = Qwen3VLForConditionalGeneration.from_pretrained(
             self.config.model_id,
-            torch_dtype=torch.bfloat16 if self.config.device == "cuda" else torch.float32,
-            attn_implementation="sdpa",
-        ).to(self.config.device)
+            **model_kwargs,
+        )
+        if not (self.config.load_in_4bit or self.config.load_in_8bit):
+            self.model = self.model.to(self.config.device)
         self.processor = AutoProcessor.from_pretrained(self.config.model_id)
 
     def unload(self) -> None:
@@ -86,7 +114,8 @@ class QwenVLMAnswerer:
             padding=True,
             return_tensors="pt",
         )
-        inputs = {key: value.to(self.config.device) for key, value in inputs.items()}
+        model_device = next(self.model.parameters()).device
+        inputs = {key: value.to(model_device) for key, value in inputs.items()}
 
         started = time.perf_counter()
         with torch.inference_mode():
@@ -98,6 +127,11 @@ class QwenVLMAnswerer:
         elapsed = time.perf_counter() - started
         generated = outputs[0, inputs["input_ids"].shape[1] :]
         raw_text = self.processor.decode(generated, skip_special_tokens=True, clean_up_tokenization_spaces=False).strip()
+        del outputs
+        del generated
+        del inputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         return PredictionResult(
             raw_text=raw_text,
             predicted_letter=parse_choice_letter(raw_text),

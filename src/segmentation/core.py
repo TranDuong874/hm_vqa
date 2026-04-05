@@ -24,7 +24,12 @@ class Segment:
     mean_score: float
 
 
-def sample_video(video_path: Path, fps: float) -> tuple[list[Image.Image], list[np.ndarray], np.ndarray, float]:
+def sample_video(
+    video_path: Path,
+    fps: float,
+    *,
+    include_bgr: bool = True,
+) -> tuple[list[Image.Image], list[np.ndarray], np.ndarray, float]:
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
         raise RuntimeError(f"Failed to open video: {video_path}")
@@ -48,7 +53,8 @@ def sample_video(video_path: Path, fps: float) -> tuple[list[Image.Image], list[
         if frame_index % step == 0:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             pil_frames.append(Image.fromarray(frame_rgb))
-            bgr_frames.append(frame.copy())
+            if include_bgr:
+                bgr_frames.append(frame.copy())
             timestamps.append(frame_index / native_fps)
         frame_index += 1
 
@@ -56,6 +62,106 @@ def sample_video(video_path: Path, fps: float) -> tuple[list[Image.Image], list[
     if not pil_frames:
         raise RuntimeError(f"No frames sampled from video: {video_path}")
     return pil_frames, bgr_frames, np.asarray(timestamps, dtype=np.float32), native_fps
+
+
+def sample_video_with_energy(
+    video_path: Path,
+    fps: float,
+) -> tuple[list[Image.Image], np.ndarray, float, np.ndarray]:
+    capture = cv2.VideoCapture(str(video_path))
+    if not capture.isOpened():
+        raise RuntimeError(f"Failed to open video: {video_path}")
+
+    native_fps = float(capture.get(cv2.CAP_PROP_FPS) or 0.0)
+    total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    if native_fps <= 0.0 or total_frames <= 0:
+        capture.release()
+        raise RuntimeError(f"Invalid fps/frame count for video: {video_path}")
+
+    step = max(int(round(native_fps / fps)), 1)
+    pil_frames: list[Image.Image] = []
+    timestamps: list[float] = []
+    energies: list[float] = []
+    prev_gray: np.ndarray | None = None
+
+    frame_index = 0
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+        if frame_index % step == 0:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_frames.append(Image.fromarray(frame_rgb))
+            timestamps.append(frame_index / native_fps)
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(np.float32)
+            if prev_gray is None:
+                energies.append(0.0)
+            else:
+                energies.append(float(np.mean(np.abs(gray - prev_gray)) / 255.0))
+            prev_gray = gray
+        frame_index += 1
+
+    capture.release()
+    if not pil_frames:
+        raise RuntimeError(f"No frames sampled from video: {video_path}")
+    return (
+        pil_frames,
+        np.asarray(timestamps, dtype=np.float32),
+        native_fps,
+        np.asarray(energies, dtype=np.float32),
+    )
+
+
+def sample_video_selected_indices(
+    video_path: Path,
+    fps: float,
+    *,
+    target_indices: list[int],
+) -> tuple[list[Image.Image], list[float], float]:
+    if not target_indices:
+        return [], [], 0.0
+
+    wanted = sorted(set(int(index) for index in target_indices))
+    wanted_set = set(wanted)
+    captured: dict[int, Image.Image] = {}
+    times: dict[int, float] = {}
+
+    capture = cv2.VideoCapture(str(video_path))
+    if not capture.isOpened():
+        raise RuntimeError(f"Failed to open video: {video_path}")
+
+    native_fps = float(capture.get(cv2.CAP_PROP_FPS) or 0.0)
+    total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    if native_fps <= 0.0 or total_frames <= 0:
+        capture.release()
+        raise RuntimeError(f"Invalid fps/frame count for video: {video_path}")
+
+    step = max(int(round(native_fps / fps)), 1)
+    frame_index = 0
+    sampled_index = 0
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            break
+        if frame_index % step == 0:
+            if sampled_index in wanted_set:
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                captured[sampled_index] = Image.fromarray(frame_rgb)
+                times[sampled_index] = frame_index / native_fps
+                if len(captured) == len(wanted):
+                    break
+            sampled_index += 1
+        frame_index += 1
+
+    capture.release()
+    missing = [index for index in wanted if index not in captured]
+    if missing:
+        raise RuntimeError(f"Failed to sample requested frame indices from {video_path}: {missing[:8]}")
+
+    ordered_frames = [captured[index] for index in target_indices]
+    ordered_times = [float(times[index]) for index in target_indices]
+    return ordered_frames, ordered_times, native_fps
 
 
 def minmax_normalize(values: np.ndarray) -> np.ndarray:
@@ -212,6 +318,5 @@ def plot_signals(
         axis.grid(True, alpha=0.25)
 
     fig.tight_layout()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=180)
+    fig.savefig(output_path)
     plt.close(fig)

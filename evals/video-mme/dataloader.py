@@ -5,8 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from datasets import load_dataset
-
 
 DEFAULT_DATASET = "lmms-lab/Video-MME"
 DEFAULT_SPLIT = "test"
@@ -84,7 +82,12 @@ def _group_flat_rows(flat_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return videos
 
 
-def load_official_videomme_rows(dataset_name: str = DEFAULT_DATASET, split: str = DEFAULT_SPLIT) -> list[dict[str, Any]]:
+def load_official_videomme_rows(
+    dataset_name: str = DEFAULT_DATASET,
+    split: str = DEFAULT_SPLIT,
+) -> list[dict[str, Any]]:
+    from datasets import load_dataset
+
     dataset = load_dataset(dataset_name, split=split)
     flat_rows = [dict(row) for row in dataset]
     return _group_flat_rows(flat_rows)
@@ -164,45 +167,3 @@ class VideoMMELoader:
 
     def question_count(self) -> int:
         return sum(len(video.questions) for video in self.load())
-
-    def stats(self) -> dict[str, Any]:
-        videos = self.load()
-        question_rows = list(self.iter_questions())
-
-        def count_by(items: list[Any], key: str) -> dict[str, int]:
-            counts: dict[str, int] = {}
-            for item in items:
-                value = str(getattr(item, key))
-                counts[value] = counts.get(value, 0) + 1
-            return dict(sorted(counts.items()))
-
-        duration_domain: dict[str, int] = {}
-        for video in videos:
-            key = f"{video.duration} | {video.domain}"
-            duration_domain[key] = duration_domain.get(key, 0) + 1
-
-        return {
-            "videos": len(videos),
-            "questions": len(question_rows),
-            "video_duration": count_by(videos, "duration"),
-            "video_domain": count_by(videos, "domain"),
-            "question_task_type": count_by(question_rows, "task_type"),
-            "video_duration_domain": dict(sorted(duration_domain.items())),
-        }
-
-
-if __name__ == "__main__":
-    loader = VideoMMELoader()
-    videos = loader.load()
-    print(f"source_dataset: {loader.hf_dataset}")
-    print(f"source_split: {loader.hf_split}")
-    print(f"videos: {loader.video_count()}")
-    print(f"questions: {loader.question_count()}")
-    if videos:
-        first = videos[0]
-        print(f"first_video_id: {first.video_id}")
-        print(f"first_video_file: {first.video_filename}")
-        if first.questions:
-            print(f"first_question_id: {first.questions[0].question_id}")
-            print(f"first_question: {first.questions[0].question}")
-    print(json.dumps(loader.stats(), indent=2, ensure_ascii=False))

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from analysis import Segment, minmax_normalize, sample_video
+from segmentation import Segment, minmax_normalize, sample_video
 
 
 @dataclass(slots=True)
@@ -157,13 +157,12 @@ def collect_candidate_low_segments(
     return candidates[:top_k]
 
 
-def select_evidence_frames(
+def select_evidence_indices(
     *,
-    pil_frames: list[Image.Image],
     timestamps: np.ndarray,
     low_hits: list[dict[str, Any]],
     max_frames: int,
-) -> tuple[list[Image.Image], list[dict[str, Any]]]:
+) -> tuple[list[int], list[dict[str, Any]]]:
     selected_indices: list[int] = []
     per_segment = max(1, max_frames // max(len(low_hits), 1))
 
@@ -185,8 +184,23 @@ def select_evidence_frames(
         chosen = torch.linspace(0, len(selected_indices) - 1, max_frames).round().long().tolist()
         selected_indices = [selected_indices[index] for index in chosen]
 
-    frames = [pil_frames[index] for index in selected_indices]
     meta = [{"frame_index": int(index), "time_sec": float(timestamps[index])} for index in selected_indices]
+    return selected_indices, meta
+
+
+def select_evidence_frames(
+    *,
+    pil_frames: list[Image.Image],
+    timestamps: np.ndarray,
+    low_hits: list[dict[str, Any]],
+    max_frames: int,
+) -> tuple[list[Image.Image], list[dict[str, Any]]]:
+    selected_indices, meta = select_evidence_indices(
+        timestamps=timestamps,
+        low_hits=low_hits,
+        max_frames=max_frames,
+    )
+    frames = [pil_frames[index] for index in selected_indices]
     return frames, meta
 
 

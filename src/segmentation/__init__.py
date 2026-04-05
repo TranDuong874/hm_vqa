@@ -6,6 +6,8 @@ from .core import (
     minmax_normalize,
     plot_signals,
     sample_video,
+    sample_video_selected_indices,
+    sample_video_with_energy,
     segment_by_threshold,
 )
 
@@ -17,5 +19,7 @@ __all__ = [
     "minmax_normalize",
     "plot_signals",
     "sample_video",
+    "sample_video_selected_indices",
+    "sample_video_with_energy",
     "segment_by_threshold",
 ]

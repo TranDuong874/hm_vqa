@@ -4,14 +4,9 @@ import argparse
 import json
 import math
 import random
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
-
-CURRENT_DIR = Path(__file__).resolve().parent
-if str(CURRENT_DIR) not in sys.path:
-    sys.path.insert(0, str(CURRENT_DIR))
 
 from common import ensure_local_video
 from dataloader import DEFAULT_DATASET, DEFAULT_SPLIT, load_official_videomme_rows
@@ -53,6 +48,12 @@ def _stratified_video_sample(
         return list(sorted(videos, key=_video_sort_key))
 
     rng = random.Random(seed)
+
+    if not bucket_fields:
+        shuffled = list(videos)
+        rng.shuffle(shuffled)
+        return sorted(shuffled[:sample_size], key=_video_sort_key)
+
     buckets: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
     for item in videos:
         buckets[_bucket_key(item, bucket_fields)].append(item)
@@ -60,8 +61,8 @@ def _stratified_video_sample(
         rng.shuffle(items)
 
     total = len(videos)
-    target_counts: dict[tuple[str, str], int] = {}
-    remainders: list[tuple[float, tuple[str, str]]] = []
+    target_counts: dict[tuple[str, ...], int] = {}
+    remainders: list[tuple[float, tuple[str, ...]]] = []
     selected_total = 0
 
     for key, items in buckets.items():
@@ -135,115 +136,41 @@ def _sample_with_duration_quotas(
         group = [item for item in videos if str(item["duration"]) == duration]
         if quota > len(group):
             raise ValueError(f"Requested {quota} videos for duration={duration}, but only {len(group)} available.")
+
+        effective_bucket_fields = bucket_fields
+        if "duration" in effective_bucket_fields:
+            effective_bucket_fields = tuple(field for field in effective_bucket_fields if field != "duration")
+
         sampled.extend(
             _stratified_video_sample(
                 group,
                 sample_size=quota,
                 seed=seed,
-                bucket_fields=bucket_fields,
+                bucket_fields=effective_bucket_fields,
             )
         )
     return sorted(sampled, key=_video_sort_key)
 
 
-def _replacement_candidates(
-    *,
-    all_videos: list[dict[str, Any]],
-    current_item: dict[str, Any],
-    active_urls: set[str],
-    failed_urls: set[str],
-    bucket_fields: tuple[str, ...],
-    enforce_duration: bool,
-    rng: random.Random,
-) -> list[dict[str, Any]]:
-    available = [
-        item
-        for item in all_videos
-        if str(item["url"]) not in active_urls and str(item["url"]) not in failed_urls
-    ]
-    current_bucket = _bucket_key(current_item, bucket_fields)
-    current_duration = str(current_item["duration"])
-
-    def same_bucket(item: dict[str, Any]) -> bool:
-        return _bucket_key(item, bucket_fields) == current_bucket
-
-    def same_duration(item: dict[str, Any]) -> bool:
-        return str(item["duration"]) == current_duration
-
-    stages: list[list[dict[str, Any]]] = []
-    if enforce_duration:
-        stages.append([item for item in available if same_duration(item) and same_bucket(item)])
-        stages.append([item for item in available if same_duration(item)])
-        stages.append([item for item in available if same_bucket(item)])
-    else:
-        stages.append([item for item in available if same_bucket(item)])
-    stages.append(list(available))
-
-    ordered: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for stage in stages:
-        stage = list(stage)
-        rng.shuffle(stage)
-        for item in stage:
-            url = str(item["url"])
-            if url not in seen:
-                ordered.append(item)
-                seen.add(url)
-    return ordered
-
-
-def _validate_and_replace(
+def _validate_local_videos(
     *,
     sampled: list[dict[str, Any]],
-    all_videos: list[dict[str, Any]],
     video_root: Path,
-    allow_download: bool,
-    bucket_fields: tuple[str, ...],
-    duration_quota: dict[str, int] | None,
-    seed: int,
-) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
-    rng = random.Random(seed)
-    active_urls = {str(item["url"]) for item in sampled}
-    failed_urls: set[str] = set()
-    replacements: list[dict[str, str]] = []
+) -> list[dict[str, Any]]:
     validated: list[dict[str, Any]] = []
-
+    missing: list[str] = []
     for item in sampled:
-        current = item
-        while True:
-            current_url = str(current["url"])
-            try:
-                ensure_local_video(video_root=video_root, url_id=current_url, allow_download=allow_download)
-                validated.append(current)
-                break
-            except Exception as exc:
-                failed_urls.add(current_url)
-                active_urls.discard(current_url)
-                replacement_pool = _replacement_candidates(
-                    all_videos=all_videos,
-                    current_item=current,
-                    active_urls=active_urls,
-                    failed_urls=failed_urls,
-                    bucket_fields=bucket_fields,
-                    enforce_duration=duration_quota is not None,
-                    rng=rng,
-                )
-                if not replacement_pool:
-                    raise RuntimeError(
-                        f"Could not replace unavailable video url={current_url} while validating sampled manifest."
-                    ) from exc
-                replacement = replacement_pool[0]
-                replacement_url = str(replacement["url"])
-                active_urls.add(replacement_url)
-                replacements.append(
-                    {
-                        "replaced_url": current_url,
-                        "replacement_url": replacement_url,
-                        "reason": str(exc),
-                    }
-                )
-                current = replacement
-    return sorted(validated, key=_video_sort_key), replacements
+        url_id = str(item["url"])
+        try:
+            ensure_local_video(video_root=video_root, url_id=url_id)
+            validated.append(item)
+        except FileNotFoundError:
+            missing.append(url_id)
+    if missing:
+        preview = ", ".join(missing[:5])
+        more = "" if len(missing) <= 5 else f" (+{len(missing) - 5} more)"
+        raise FileNotFoundError(f"Missing local videos for sampled manifest: {preview}{more}")
+    return validated
 
 
 def _question_rows(videos: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -294,7 +221,7 @@ def _build_stats(videos: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Sample a Video-MME development split with optional duration quotas.")
+    parser = argparse.ArgumentParser(description="Sample a reusable Video-MME development split.")
     parser.add_argument("--input-json", default=None)
     parser.add_argument("--hf-dataset", default=DEFAULT_DATASET)
     parser.add_argument("--hf-split", default=DEFAULT_SPLIT)
@@ -303,7 +230,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument(
         "--bucket-fields",
-        nargs="+",
+        nargs="*",
         default=["duration", "domain"],
         help="Fields used for proportional stratification buckets.",
     )
@@ -314,8 +241,7 @@ def main() -> None:
         help="Optional per-duration quotas, e.g. short=25 medium=25",
     )
     parser.add_argument("--video-root", default="dataset/Video-MME")
-    parser.add_argument("--validate-downloadable", action="store_true")
-    parser.add_argument("--allow-download", action="store_true")
+    parser.add_argument("--validate-local", action="store_true")
     args = parser.parse_args()
 
     input_path = Path(args.input_json) if args.input_json else None
@@ -351,22 +277,16 @@ def main() -> None:
         )
         sample_size = int(args.sample_size)
 
-    replacements: list[dict[str, str]] = []
-    if args.validate_downloadable:
-        sampled, replacements = _validate_and_replace(
+    if args.validate_local:
+        sampled = _validate_local_videos(
             sampled=sampled,
-            all_videos=videos,
             video_root=Path(args.video_root),
-            allow_download=args.allow_download,
-            bucket_fields=bucket_fields,
-            duration_quota=duration_quota,
-            seed=args.seed,
         )
 
     stats = _build_stats(sampled)
 
     payload = {
-        "source_json": str(input_path),
+        "source_json": str(input_path) if input_path is not None else None,
         "source_dataset": args.hf_dataset,
         "source_split": args.hf_split,
         "sample_size": int(sample_size),
@@ -374,9 +294,7 @@ def main() -> None:
         "bucket_fields": list(bucket_fields),
         "duration_quota": duration_quota,
         "video_root": str(args.video_root),
-        "validate_downloadable": bool(args.validate_downloadable),
-        "allow_download": bool(args.allow_download),
-        "replacements": replacements,
+        "validate_local": bool(args.validate_local),
         "stats": stats,
         "videos": sampled,
     }
