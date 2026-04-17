@@ -5,6 +5,7 @@
 /cache
 __pycache__/
 /models
+legacy_evals/
 yolov8n.pt
 yolo11n.pt
 .pytest_cache/
@@ -15,3 +16,4 @@ tests/
 /pretrained
 thirdparty/*
 /.cache
+docs/

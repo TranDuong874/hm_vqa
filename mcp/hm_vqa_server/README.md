@@ -1,6 +1,6 @@
 # HM-VQA MCP Server
 
-This package keeps MCP-facing tooling separate from the experiment runners in `src/pipeline/experiments` and dataset runners in `evals/`.
+This package keeps MCP-facing tooling separate from the experiment runners in `src/pipeline/hd_epic.py` and `src/pipeline/agentic` and dataset runners in `evals/`.
 
 Current tool surface:
 

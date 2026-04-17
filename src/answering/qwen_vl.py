@@ -43,19 +43,37 @@ def _choice_letters(num_options: int) -> list[str]:
 def build_mcq_letter_prompt(question: str, options: list[str], prefix: str) -> str:
     letters = _choice_letters(len(options))
     last_letters = ", ".join(letters[:-1]) + f", or {letters[-1]}" if len(letters) > 1 else letters[0]
+    labeled_options = [f"{letter}. {option}" for letter, option in zip(letters, options)]
     return (
         f"{prefix}\n"
         "Answer the multiple-choice question using only the evidence shown.\n"
         f"Reply with only one letter: {last_letters}.\n\n"
         f"Question: {question}\n"
-        f"Options:\n" + "\n".join(options)
+        f"Options:\n" + "\n".join(labeled_options)
     )
 
 
-def parse_choice_letter(text: str, *, options_count: int = 4) -> str | None:
+def _normalize_answer_text(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^A-Z0-9]+", " ", text.upper())).strip()
+
+
+def parse_choice_letter(text: str, *, options_count: int = 4, options: list[str] | None = None) -> str | None:
     letters = "".join(_choice_letters(options_count))
     match = re.search(rf"\b([{letters}])\b", text.upper())
-    return match.group(1) if match else None
+    if match:
+        return match.group(1)
+    if options:
+        normalized_text = _normalize_answer_text(text)
+        if normalized_text:
+            for index, option in enumerate(options[:options_count]):
+                normalized_option = _normalize_answer_text(option)
+                if not normalized_option:
+                    continue
+                if normalized_text == normalized_option:
+                    return chr(ord("A") + index)
+                if len(normalized_option) >= 4 and normalized_option in normalized_text:
+                    return chr(ord("A") + index)
+    return None
 
 
 class QwenVLMAnswerer:
@@ -123,7 +141,7 @@ class QwenVLMAnswerer:
         generation = self.generate_text_from_frames(frames=frames, prompt=prompt)
         return PredictionResult(
             raw_text=generation.raw_text,
-            predicted_letter=parse_choice_letter(generation.raw_text, options_count=len(options)),
+            predicted_letter=parse_choice_letter(generation.raw_text, options_count=len(options), options=options),
             generation_sec=generation.generation_sec,
         )
 

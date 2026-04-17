@@ -1,11 +1,30 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import Any
+from typing import TypeVar
 
 import open_clip
 import torch
 
-from .base import batched, l2_normalize, resolve_device
+
+T = TypeVar("T")
+
+
+def resolve_device(device: str | None = None) -> str:
+    if device is not None:
+        return device
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def batched(items: list[T], batch_size: int) -> Iterable[list[T]]:
+    size = 1 if batch_size <= 0 else int(batch_size)
+    for start in range(0, len(items), size):
+        yield items[start : start + size]
+
+
+def l2_normalize(x: torch.Tensor) -> torch.Tensor:
+    return torch.nn.functional.normalize(x, dim=-1)
 
 
 class OpenCLIPEncoder:
