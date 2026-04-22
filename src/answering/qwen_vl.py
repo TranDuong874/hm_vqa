@@ -3,22 +3,39 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import torch
 from PIL import Image, ImageOps
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration, Qwen3_5ForConditionalGeneration
+from transformers import (
+    AutoProcessor,
+    Qwen2VLForConditionalGeneration,
+    Qwen2_5_VLForConditionalGeneration,
+    Qwen3VLForConditionalGeneration,
+    Qwen3_5ForConditionalGeneration,
+)
 
 
 @dataclass(slots=True)
 class AnswerConfig:
     model_id: str = "Qwen/Qwen3-VL-2B-Instruct"
+    backend: str = "local"
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     max_new_tokens: int = 32
     load_in_4bit: bool = False
     load_in_8bit: bool = False
     image_max_size: int | None = None
     enable_thinking: bool = False
+    video_total_pixels: int = 20480 * 32 * 32
+    video_min_pixels: int = 64 * 32 * 32
+    api_base_url: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    api_key_env_var: str = "ALIBABA_CLOUD_API"
+    api_timeout_sec: float = 120.0
+    api_requests_per_minute: int = 60
+    api_tokens_per_minute: int = 100000
+    api_retry_attempts: int = 5
+    api_retry_base_delay_sec: float = 2.0
 
 
 @dataclass(slots=True)
@@ -26,12 +43,18 @@ class PredictionResult:
     raw_text: str
     predicted_letter: str | None
     generation_sec: float
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
 
 
 @dataclass(slots=True)
 class GenerationResult:
     raw_text: str
     generation_sec: float
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
 
 
 def _choice_letters(num_options: int) -> list[str]:
@@ -136,19 +159,53 @@ class QwenVLMAnswerer:
         question: str,
         options: list[str],
         prompt_prefix: str,
+        frame_texts: list[str] | None = None,
     ) -> PredictionResult:
         prompt = build_mcq_letter_prompt(question, options, prefix=prompt_prefix)
-        generation = self.generate_text_from_frames(frames=frames, prompt=prompt)
+        generation = self.generate_text_from_frames(frames=frames, prompt=prompt, frame_texts=frame_texts)
         return PredictionResult(
             raw_text=generation.raw_text,
             predicted_letter=parse_choice_letter(generation.raw_text, options_count=len(options), options=options),
             generation_sec=generation.generation_sec,
+            prompt_tokens=generation.prompt_tokens,
+            completion_tokens=generation.completion_tokens,
+            total_tokens=generation.total_tokens,
+        )
+
+    def answer_video(
+        self,
+        *,
+        video_path: str | Path,
+        question: str,
+        options: list[str],
+        prompt_prefix: str,
+        sample_fps: float = 2.0,
+        max_frames: int = 128,
+        extra_text: str | None = None,
+    ) -> PredictionResult:
+        prompt = build_mcq_letter_prompt(question, options, prefix=prompt_prefix)
+        if extra_text:
+            prompt = f"{extra_text.strip()}\n\n{prompt}"
+        generation = self.generate_text_from_video(
+            video_path=video_path,
+            prompt=prompt,
+            sample_fps=sample_fps,
+            max_frames=max_frames,
+        )
+        return PredictionResult(
+            raw_text=generation.raw_text,
+            predicted_letter=parse_choice_letter(generation.raw_text, options_count=len(options), options=options),
+            generation_sec=generation.generation_sec,
+            prompt_tokens=generation.prompt_tokens,
+            completion_tokens=generation.completion_tokens,
+            total_tokens=generation.total_tokens,
         )
 
     def generate_text(
         self,
         *,
         prompt: str,
+        max_new_tokens: int | None = None,
     ) -> GenerationResult:
         self.load()
         assert self.model is not None
@@ -168,7 +225,7 @@ class QwenVLMAnswerer:
         with torch.inference_mode():
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=self.config.max_new_tokens,
+                max_new_tokens=(max_new_tokens or self.config.max_new_tokens),
                 do_sample=False,
             )
         elapsed = time.perf_counter() - started
@@ -187,6 +244,7 @@ class QwenVLMAnswerer:
         frames: list[Image.Image],
         prompt: str,
         frame_texts: list[str] | None = None,
+        max_new_tokens: int | None = None,
     ) -> GenerationResult:
         self.load()
         assert self.model is not None
@@ -217,6 +275,84 @@ class QwenVLMAnswerer:
         with torch.inference_mode():
             outputs = self.model.generate(
                 **inputs,
+                max_new_tokens=(max_new_tokens or self.config.max_new_tokens),
+                do_sample=False,
+            )
+        elapsed = time.perf_counter() - started
+        generated = outputs[0, inputs["input_ids"].shape[1] :]
+        raw_text = self.processor.decode(generated, skip_special_tokens=True, clean_up_tokenization_spaces=False).strip()
+        del outputs
+        del generated
+        del inputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        return GenerationResult(raw_text=raw_text, generation_sec=round(elapsed, 3))
+
+    def generate_text_from_video(
+        self,
+        *,
+        video_path: str | Path,
+        prompt: str,
+        sample_fps: float = 2.0,
+        max_frames: int = 128,
+    ) -> GenerationResult:
+        self.load()
+        assert self.model is not None
+        assert self.processor is not None
+
+        try:
+            from qwen_vl_utils import process_vision_info
+        except ImportError as exc:
+            raise RuntimeError(
+                "Native Qwen video input requires qwen-vl-utils in the active environment."
+            ) from exc
+
+        content: list[dict[str, object]] = [
+            {
+                "type": "video",
+                "video": str(Path(video_path)),
+                "total_pixels": int(self.config.video_total_pixels),
+                "min_pixels": int(self.config.video_min_pixels),
+                "max_frames": int(max_frames),
+                "sample_fps": float(sample_fps),
+            },
+            {"type": "text", "text": prompt},
+        ]
+        messages = [{"role": "user", "content": content}]
+        text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        image_inputs, video_inputs, video_kwargs = process_vision_info(
+            [messages],
+            return_video_kwargs=True,
+            image_patch_size=16,
+            return_video_metadata=True,
+        )
+        if video_inputs is not None:
+            video_inputs, video_metadatas = zip(*video_inputs)
+            video_inputs = list(video_inputs)
+            video_metadatas = list(video_metadatas)
+        else:
+            video_metadatas = None
+
+        inputs = self.processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            video_metadata=video_metadatas,
+            **video_kwargs,
+            do_resize=False,
+            padding=True,
+            return_tensors="pt",
+        )
+        model_device = next(self.model.parameters()).device
+        inputs = {
+            key: (value.to(model_device) if hasattr(value, "to") else value)
+            for key, value in inputs.items()
+        }
+
+        started = time.perf_counter()
+        with torch.inference_mode():
+            outputs = self.model.generate(
+                **inputs,
                 max_new_tokens=self.config.max_new_tokens,
                 do_sample=False,
             )
@@ -240,6 +376,10 @@ def _prepare_frame(frame: Image.Image, *, image_max_size: int | None) -> Image.I
 
 def _resolve_model_class(model_id: str):
     normalized = (model_id or "").lower()
+    if normalized.startswith("qwen/qwen2.5-"):
+        return Qwen2_5_VLForConditionalGeneration
+    if normalized.startswith("qwen/qwen2-"):
+        return Qwen2VLForConditionalGeneration
     if normalized.startswith("qwen/qwen3.5-"):
         return Qwen3_5ForConditionalGeneration
     return Qwen3VLForConditionalGeneration

@@ -6,12 +6,14 @@ from .qwen_vl import (
     build_mcq_letter_prompt,
     parse_choice_letter,
 )
+from .qwen_api import QwenAPIAnswerer
 from .factory import build_answerer
 
 __all__ = [
     "AnswerConfig",
     "GenerationResult",
     "PredictionResult",
+    "QwenAPIAnswerer",
     "QwenVLMAnswerer",
     "build_answerer",
     "build_mcq_letter_prompt",

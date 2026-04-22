@@ -97,6 +97,10 @@ def retrieve_top_segments_from_frame_scores(
                     - (tau * torch.log(torch.tensor(float(segment_scores.numel()))))
                 ).item()
             )
+        elif aggregation == "softmax_mean":
+            tau = max(float(temperature), 1e-6)
+            weights = torch.softmax(segment_scores / tau, dim=0)
+            score = float((weights * segment_scores).sum().item())
         else:
             raise ValueError(f"Unsupported frame-score aggregation: {aggregation}")
         scored.append(

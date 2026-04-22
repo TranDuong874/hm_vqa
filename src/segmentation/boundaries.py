@@ -55,396 +55,217 @@ def segment_fixed_windows(
     return segments
 
 
-def segment_change_threshold(
-    *,
-    timestamps: np.ndarray,
-    frame_embeddings: torch.Tensor,
-    change_threshold: float,
-    prefix: str = "semantic",
-) -> list[Segment]:
-    if len(timestamps) == 0:
-        return []
-    if frame_embeddings.ndim != 2:
-        raise ValueError("frame_embeddings must be 2D")
-    if frame_embeddings.shape[0] != len(timestamps):
-        raise ValueError("frame_embeddings and timestamps must have matching length")
-    if change_threshold < 0.0:
-        raise ValueError("change_threshold must be non-negative")
-
-    normalized = torch.nn.functional.normalize(frame_embeddings, dim=-1)
-    if normalized.shape[0] <= 1:
-        return [
-            Segment(
-                segment_id=f"{prefix}_0000",
-                start_index=0,
-                end_index=0,
-                start_time_sec=float(timestamps[0]),
-                end_time_sec=float(timestamps[0]),
-                duration_sec=0.0,
-            )
-        ]
-
-    similarities = (normalized[:-1] * normalized[1:]).sum(dim=-1)
-    changes = 1.0 - similarities
-    boundary_indices = [
-        int(index)
-        for index, value in enumerate(changes.tolist())
-        if float(value) >= float(change_threshold)
-    ]
-
-    segments: list[Segment] = []
-    start_index = 0
-    segment_index = 0
-    for boundary_index in boundary_indices:
-        end_index = boundary_index
-        if end_index < start_index:
-            continue
-        start_time = float(timestamps[start_index])
-        end_time = float(timestamps[end_index])
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_index,
-                end_index=end_index,
-                start_time_sec=start_time,
-                end_time_sec=end_time,
-                duration_sec=max(0.0, end_time - start_time),
-            )
-        )
-        segment_index += 1
-        start_index = boundary_index + 1
-
-    if start_index <= len(timestamps) - 1:
-        start_time = float(timestamps[start_index])
-        end_time = float(timestamps[-1])
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_index,
-                end_index=len(timestamps) - 1,
-                start_time_sec=start_time,
-                end_time_sec=end_time,
-                duration_sec=max(0.0, end_time - start_time),
-            )
-        )
-
-    return segments
-
-
-def _normalize_scores(values: np.ndarray) -> np.ndarray:
+def _moving_average_1d(values: np.ndarray, kernel_size: int) -> np.ndarray:
     if values.size == 0:
         return values.astype(np.float32)
-    minimum = float(values.min())
-    maximum = float(values.max())
-    if maximum - minimum <= 1e-8:
-        return np.zeros_like(values, dtype=np.float32)
-    normalized = (values - minimum) / (maximum - minimum)
-    return normalized.astype(np.float32)
+    size = min(max(int(kernel_size), 1), int(values.size))
+    if size == 1:
+        return values.astype(np.float32)
+    kernel = np.ones((size,), dtype=np.float32) / float(size)
+    return np.convolve(values.astype(np.float32), kernel, mode="same").astype(np.float32)
 
 
-def segment_fused_change_threshold(
+def _segment_from_indices(
+    *,
+    timestamps: np.ndarray,
+    start_index: int,
+    end_index: int,
+    segment_id: str,
+) -> Segment:
+    start = int(start_index)
+    end = max(start, int(end_index))
+    start_time = float(timestamps[start])
+    end_time = float(timestamps[end])
+    return Segment(
+        segment_id=segment_id,
+        start_index=start,
+        end_index=end,
+        start_time_sec=start_time,
+        end_time_sec=end_time,
+        duration_sec=max(0.0, end_time - start_time),
+    )
+
+
+def _best_boundary_in_range(
+    *,
+    timestamps: np.ndarray,
+    contrast: np.ndarray,
+    parent_start: int,
+    start_index: int,
+    low_time: float,
+    high_time: float,
+) -> int | None:
+    candidates: list[tuple[float, int]] = []
+    for frame_index in range(start_index + 1, len(timestamps)):
+        time_sec = float(timestamps[frame_index])
+        if time_sec < low_time:
+            continue
+        if time_sec > high_time:
+            break
+        contrast_index = frame_index - parent_start
+        if 0 <= contrast_index < len(contrast):
+            candidates.append((float(contrast[contrast_index]), frame_index - 1))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return int(candidates[0][1])
+
+
+def segment_l3_local_contrast_windows(
     *,
     timestamps: np.ndarray,
     frame_embeddings: torch.Tensor,
-    motion_energy: np.ndarray,
-    change_threshold: float,
-    motion_weight: float = 0.5,
-    prefix: str = "semantic",
+    l3_segments: list[Segment],
+    min_duration_sec: float = 3.0,
+    max_duration_sec: float = 12.0,
+    fast_kernel_size: int = 1,
+    slow_kernel_size: int = 9,
+    peak_percentile: float = 75.0,
+    min_peak_gap_sec: float = 2.0,
+    prefix: str = "l2_l3local_contrast",
 ) -> list[Segment]:
-    if len(timestamps) == 0:
+    """Build local L2 windows inside L3 segments using fast-minus-slow drift peaks."""
+    if len(timestamps) == 0 or not l3_segments:
         return []
     if frame_embeddings.ndim != 2:
         raise ValueError("frame_embeddings must be 2D")
     if frame_embeddings.shape[0] != len(timestamps):
         raise ValueError("frame_embeddings and timestamps must have matching length")
-    if len(motion_energy) != len(timestamps):
-        raise ValueError("motion_energy and timestamps must have matching length")
-    if change_threshold < 0.0 or change_threshold > 1.0:
-        raise ValueError("change_threshold must be in [0, 1]")
-    if motion_weight < 0.0 or motion_weight > 1.0:
-        raise ValueError("motion_weight must be in [0, 1]")
+    if min_duration_sec <= 0.0:
+        raise ValueError("min_duration_sec must be positive")
+    if max_duration_sec < min_duration_sec:
+        raise ValueError("max_duration_sec must be >= min_duration_sec")
+    if not 0.0 <= peak_percentile <= 100.0:
+        raise ValueError("peak_percentile must be in [0, 100]")
 
     normalized = torch.nn.functional.normalize(frame_embeddings, dim=-1)
-    semantic_change = np.zeros((len(timestamps),), dtype=np.float32)
+    drift = np.zeros((len(timestamps),), dtype=np.float32)
     if normalized.shape[0] > 1:
         similarities = (normalized[:-1] * normalized[1:]).sum(dim=-1)
-        semantic_change[1:] = (1.0 - similarities).cpu().numpy().astype(np.float32)
-    semantic_change = _normalize_scores(semantic_change)
-    motion_change = _normalize_scores(np.asarray(motion_energy, dtype=np.float32))
-    fused_change = ((1.0 - motion_weight) * semantic_change) + (motion_weight * motion_change)
+        drift[1:] = (1.0 - similarities).cpu().numpy().astype(np.float32)
 
-    boundary_indices = [
-        index - 1
-        for index, value in enumerate(fused_change.tolist())
-        if index > 0 and float(value) >= float(change_threshold)
-    ]
-
-    segments: list[Segment] = []
-    start_index = 0
+    output: list[Segment] = []
     segment_index = 0
-    for boundary_index in boundary_indices:
-        if boundary_index < start_index:
+    for parent_index, parent in enumerate(l3_segments):
+        parent_start = max(0, int(parent.start_index))
+        parent_end = min(len(timestamps) - 1, int(parent.end_index))
+        if parent_end < parent_start:
             continue
-        start_time = float(timestamps[start_index])
-        end_time = float(timestamps[boundary_index])
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_index,
-                end_index=boundary_index,
-                start_time_sec=start_time,
-                end_time_sec=end_time,
-                duration_sec=max(0.0, end_time - start_time),
-            )
-        )
-        segment_index += 1
-        start_index = boundary_index + 1
-
-    if start_index <= len(timestamps) - 1:
-        start_time = float(timestamps[start_index])
-        end_time = float(timestamps[-1])
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_index,
-                end_index=len(timestamps) - 1,
-                start_time_sec=start_time,
-                end_time_sec=end_time,
-                duration_sec=max(0.0, end_time - start_time),
-            )
-        )
-
-    return segments
-
-
-def constrain_segments_by_duration_with_overlap(
-    *,
-    timestamps: np.ndarray,
-    segments: list[Segment],
-    min_duration_sec: float = 15.0,
-    max_duration_sec: float = 60.0,
-    overlap_seconds: float = 5.0,
-    prefix: str = "bounded",
-) -> list[Segment]:
-    if not segments:
-        return []
-    if max_duration_sec <= 0.0:
-        raise ValueError("max_duration_sec must be positive")
-    if min_duration_sec < 0.0:
-        raise ValueError("min_duration_sec must be non-negative")
-    if min_duration_sec > max_duration_sec:
-        raise ValueError("min_duration_sec must not exceed max_duration_sec")
-    if overlap_seconds < 0.0:
-        raise ValueError("overlap_seconds must be non-negative")
-    if overlap_seconds >= max_duration_sec:
-        raise ValueError("overlap_seconds must be smaller than max_duration_sec")
-
-    merged: list[Segment] = []
-    merged_index = 0
-    index = 0
-    while index < len(segments):
-        start_segment = segments[index]
-        end_segment = start_segment
-        while (
-            index + 1 < len(segments)
-            and (end_segment.end_time_sec - start_segment.start_time_sec) < min_duration_sec
-        ):
-            index += 1
-            end_segment = segments[index]
-        merged.append(
-            Segment(
-                segment_id=f"{prefix}_merged_{merged_index:04d}",
-                start_index=start_segment.start_index,
-                end_index=end_segment.end_index,
-                start_time_sec=start_segment.start_time_sec,
-                end_time_sec=end_segment.end_time_sec,
-                duration_sec=max(0.0, end_segment.end_time_sec - start_segment.start_time_sec),
-            )
-        )
-        merged_index += 1
-        index += 1
-
-    if len(merged) >= 2 and merged[-1].duration_sec < min_duration_sec:
-        previous = merged[-2]
-        tail = merged[-1]
-        merged[-2] = Segment(
-            segment_id=previous.segment_id,
-            start_index=previous.start_index,
-            end_index=tail.end_index,
-            start_time_sec=previous.start_time_sec,
-            end_time_sec=tail.end_time_sec,
-            duration_sec=max(0.0, tail.end_time_sec - previous.start_time_sec),
-        )
-        merged.pop()
-
-    constrained: list[Segment] = []
-    constrained_index = 0
-    stride_seconds = max_duration_sec - overlap_seconds
-    video_end_time = float(timestamps[-1])
-    for segment in merged:
-        if segment.duration_sec <= max_duration_sec:
-            constrained.append(
-                Segment(
-                    segment_id=f"{prefix}_{constrained_index:04d}",
-                    start_index=segment.start_index,
-                    end_index=segment.end_index,
-                    start_time_sec=segment.start_time_sec,
-                    end_time_sec=segment.end_time_sec,
-                    duration_sec=max(0.0, segment.end_time_sec - segment.start_time_sec),
+        if float(timestamps[parent_end]) - float(timestamps[parent_start]) <= max_duration_sec:
+            output.append(
+                _segment_from_indices(
+                    timestamps=timestamps,
+                    start_index=parent_start,
+                    end_index=parent_end,
+                    segment_id=f"{prefix}_{segment_index:04d}",
                 )
             )
-            constrained_index += 1
+            segment_index += 1
             continue
 
-        chunk_start_time = segment.start_time_sec
-        while chunk_start_time < segment.end_time_sec:
-            chunk_end_time = min(chunk_start_time + max_duration_sec, segment.end_time_sec, video_end_time)
-            chunk_start_index = int(
-                np.searchsorted(timestamps, chunk_start_time, side="left").clip(segment.start_index, segment.end_index)
+        local_drift = drift[parent_start : parent_end + 1]
+        fast = _moving_average_1d(local_drift, fast_kernel_size)
+        slow = _moving_average_1d(local_drift, slow_kernel_size)
+        contrast = np.maximum(fast - slow, 0.0).astype(np.float32)
+        if contrast.size:
+            contrast[0] = 0.0
+
+        positive = contrast[contrast > 0.0]
+        threshold = float(np.percentile(positive, peak_percentile)) if positive.size else float("inf")
+        peaks: list[int] = []
+        for local_index in range(1, max(len(contrast) - 1, 1)):
+            left = contrast[local_index - 1] if local_index - 1 >= 0 else -np.inf
+            right = contrast[local_index + 1] if local_index + 1 < len(contrast) else -np.inf
+            if float(contrast[local_index]) < threshold:
+                continue
+            if float(contrast[local_index]) < float(left) or float(contrast[local_index]) < float(right):
+                continue
+            frame_index = parent_start + local_index
+            if frame_index <= parent_start or frame_index > parent_end:
+                continue
+            peaks.append(frame_index - 1)
+
+        boundaries: list[int] = []
+        current_start = parent_start
+        last_boundary_time: float | None = None
+        for peak_boundary in sorted(peaks):
+            boundary_time = float(timestamps[peak_boundary])
+            current_duration = boundary_time - float(timestamps[current_start])
+            tail_duration = float(timestamps[parent_end]) - float(timestamps[min(peak_boundary + 1, parent_end)])
+            if current_duration < min_duration_sec or tail_duration < min_duration_sec:
+                continue
+            if last_boundary_time is not None and boundary_time - last_boundary_time < min_peak_gap_sec:
+                continue
+            while current_duration > max_duration_sec:
+                forced = _best_boundary_in_range(
+                    timestamps=timestamps,
+                    contrast=contrast,
+                    parent_start=parent_start,
+                    start_index=current_start,
+                    low_time=float(timestamps[current_start]) + min_duration_sec,
+                    high_time=float(timestamps[current_start]) + max_duration_sec,
+                )
+                if forced is None or forced < current_start:
+                    forced = int(np.searchsorted(timestamps, float(timestamps[current_start]) + max_duration_sec, side="right") - 1)
+                    forced = max(current_start, min(forced, parent_end - 1))
+                boundaries.append(forced)
+                last_boundary_time = float(timestamps[forced])
+                current_start = min(forced + 1, parent_end)
+                current_duration = boundary_time - float(timestamps[current_start])
+            boundaries.append(peak_boundary)
+            last_boundary_time = boundary_time
+            current_start = min(peak_boundary + 1, parent_end)
+
+        while float(timestamps[parent_end]) - float(timestamps[current_start]) > max_duration_sec:
+            forced = _best_boundary_in_range(
+                timestamps=timestamps,
+                contrast=contrast,
+                parent_start=parent_start,
+                start_index=current_start,
+                low_time=float(timestamps[current_start]) + min_duration_sec,
+                high_time=float(timestamps[current_start]) + max_duration_sec,
             )
-            chunk_end_index = int(
-                (np.searchsorted(timestamps, chunk_end_time, side="right") - 1).clip(
-                    segment.start_index, segment.end_index
+            if forced is None or forced < current_start:
+                forced = int(np.searchsorted(timestamps, float(timestamps[current_start]) + max_duration_sec, side="right") - 1)
+                forced = max(current_start, min(forced, parent_end - 1))
+            boundaries.append(forced)
+            current_start = min(forced + 1, parent_end)
+
+        split_start = parent_start
+        unique_boundaries = sorted(set(boundary for boundary in boundaries if parent_start <= boundary < parent_end))
+        for boundary in unique_boundaries:
+            if float(timestamps[boundary]) - float(timestamps[split_start]) < min_duration_sec:
+                continue
+            output.append(
+                _segment_from_indices(
+                    timestamps=timestamps,
+                    start_index=split_start,
+                    end_index=boundary,
+                    segment_id=f"{prefix}_{segment_index:04d}",
                 )
             )
-            if chunk_end_index < chunk_start_index:
-                break
-            actual_start = float(timestamps[chunk_start_index])
-            actual_end = float(timestamps[chunk_end_index])
-            constrained.append(
-                Segment(
-                    segment_id=f"{prefix}_{constrained_index:04d}",
-                    start_index=chunk_start_index,
-                    end_index=chunk_end_index,
-                    start_time_sec=actual_start,
-                    end_time_sec=actual_end,
-                    duration_sec=max(0.0, actual_end - actual_start),
+            segment_index += 1
+            split_start = boundary + 1
+        if split_start <= parent_end:
+            if output and float(timestamps[parent_end]) - float(timestamps[split_start]) < min_duration_sec:
+                previous = output.pop()
+                output.append(
+                    _segment_from_indices(
+                        timestamps=timestamps,
+                        start_index=previous.start_index,
+                        end_index=parent_end,
+                        segment_id=previous.segment_id,
+                    )
                 )
-            )
-            constrained_index += 1
-            if chunk_end_time >= segment.end_time_sec:
-                break
-            next_start_time = chunk_start_time + stride_seconds
-            if next_start_time <= chunk_start_time:
-                break
-            chunk_start_time = next_start_time
+            else:
+                output.append(
+                    _segment_from_indices(
+                        timestamps=timestamps,
+                        start_index=split_start,
+                        end_index=parent_end,
+                        segment_id=f"{prefix}_{segment_index:04d}",
+                    )
+                )
+                segment_index += 1
 
-    return constrained
-
-
-def group_segments_by_drift(
-    *,
-    base_segments: list[Segment],
-    segment_embeddings: torch.Tensor,
-    drift_threshold: float,
-    smoothing_kernel_size: int = 3,
-    min_duration_sec: float = 15.0,
-    max_duration_sec: float = 60.0,
-    adaptive_percentile: float | None = None,
-    adaptive_floor: float | None = None,
-    adaptive_window_size: int | None = None,
-    prefix: str = "grouped",
-) -> list[Segment]:
-    if not base_segments:
-        return []
-    if segment_embeddings.ndim != 2:
-        raise ValueError("segment_embeddings must be 2D")
-    if segment_embeddings.shape[0] != len(base_segments):
-        raise ValueError("segment_embeddings and base_segments must have matching length")
-    if smoothing_kernel_size <= 0:
-        raise ValueError("smoothing_kernel_size must be positive")
-
-    if len(base_segments) == 1:
-        segment = base_segments[0]
-        return [
-            Segment(
-                segment_id=f"{prefix}_0000",
-                start_index=segment.start_index,
-                end_index=segment.end_index,
-                start_time_sec=segment.start_time_sec,
-                end_time_sec=segment.end_time_sec,
-                duration_sec=max(0.0, segment.end_time_sec - segment.start_time_sec),
-            )
-        ]
-
-    normalized = torch.nn.functional.normalize(segment_embeddings, dim=-1)
-    similarities = (normalized[:-1] * normalized[1:]).sum(dim=-1).cpu().numpy().astype(np.float32)
-    drift = 1.0 - similarities
-    if smoothing_kernel_size > 1:
-        kernel = np.ones((smoothing_kernel_size,), dtype=np.float32) / float(smoothing_kernel_size)
-        smoothed = np.convolve(drift, kernel, mode="same")
-    else:
-        smoothed = drift
-
-    effective_thresholds = np.full_like(smoothed, float(drift_threshold), dtype=np.float32)
-    if adaptive_percentile is not None:
-        percentile = float(adaptive_percentile)
-        if percentile < 0.0 or percentile > 100.0:
-            raise ValueError("adaptive_percentile must be in [0, 100]")
-        if adaptive_window_size is None:
-            local_threshold = float(np.percentile(smoothed, percentile))
-            effective_thresholds.fill(local_threshold)
-        else:
-            window_size = int(adaptive_window_size)
-            if window_size <= 0:
-                raise ValueError("adaptive_window_size must be positive")
-            radius = window_size // 2
-            local_thresholds = np.zeros_like(smoothed, dtype=np.float32)
-            for index in range(len(smoothed)):
-                start = max(0, index - radius)
-                end = min(len(smoothed), index + radius + 1)
-                local_thresholds[index] = float(np.percentile(smoothed[start:end], percentile))
-            effective_thresholds = local_thresholds
-        if adaptive_floor is not None:
-            effective_thresholds = np.maximum(effective_thresholds, float(adaptive_floor))
-
-    segments: list[Segment] = []
-    group_start = 0
-    segment_index = 0
-    for boundary_index in range(len(base_segments) - 1):
-        current_duration = base_segments[boundary_index].end_time_sec - base_segments[group_start].start_time_sec
-        force_split = current_duration >= max_duration_sec
-        boundary_hit = smoothed[boundary_index] >= effective_thresholds[boundary_index] and current_duration >= min_duration_sec
-        if not force_split and not boundary_hit:
-            continue
-        start_segment = base_segments[group_start]
-        end_segment = base_segments[boundary_index]
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_segment.start_index,
-                end_index=end_segment.end_index,
-                start_time_sec=start_segment.start_time_sec,
-                end_time_sec=end_segment.end_time_sec,
-                duration_sec=max(0.0, end_segment.end_time_sec - start_segment.start_time_sec),
-            )
-        )
-        segment_index += 1
-        group_start = boundary_index + 1
-
-    if group_start < len(base_segments):
-        start_segment = base_segments[group_start]
-        end_segment = base_segments[-1]
-        if segments and (end_segment.end_time_sec - start_segment.start_time_sec) < min_duration_sec:
-            previous = segments.pop()
-            start_segment = Segment(
-                segment_id=start_segment.segment_id,
-                start_index=previous.start_index,
-                end_index=start_segment.end_index,
-                start_time_sec=previous.start_time_sec,
-                end_time_sec=start_segment.end_time_sec,
-                duration_sec=max(0.0, start_segment.end_time_sec - previous.start_time_sec),
-            )
-            segment_index -= 1
-        segments.append(
-            Segment(
-                segment_id=f"{prefix}_{segment_index:04d}",
-                start_index=start_segment.start_index,
-                end_index=end_segment.end_index,
-                start_time_sec=start_segment.start_time_sec,
-                end_time_sec=end_segment.end_time_sec,
-                duration_sec=max(0.0, end_segment.end_time_sec - start_segment.start_time_sec),
-            )
-        )
-
-    return segments
+    return output
