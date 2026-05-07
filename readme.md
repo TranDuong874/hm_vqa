@@ -1,82 +1,57 @@
-# HM-VQA
+# HM-VQA: Hierarchical Memory for Video Question Answering
 
-Hierarchical-memory video QA repo with:
-- reusable pipeline support in [`src/pipeline`](/home/tranduong/dev/hm_vqa/src/pipeline)
-- dataset-specific evaluation code in [`evals/`](/home/tranduong/dev/hm_vqa/evals)
-- an MCP tool server in [`mcp/hm_vqa_server`](/home/tranduong/dev/hm_vqa/mcp/hm_vqa_server)
+HM-VQA is a hierarchical retrieval system designed for long-video understanding. It uses multi-granular video memory to bridge raw video frames and Vision-Language Model (VLM) reasoning:
 
-## Current Canonical Pipeline
+- **L3 (Coarse):** Fixed or adaptive coarse temporal segments for broad retrieval.
+- **L2 (Refinement):** Local temporal windows, optionally reranked with ViCLIP inside the retrieved L3 context.
+- **L1 (Fine-grained):** Frame-level evidence selection for final visual answering.
 
-The main non-agentic pipeline is the HD-EPIC shortlist pipeline in:
-- [`hd_epic_mcq_shortlist_joint.py`](/home/tranduong/dev/hm_vqa/src/pipeline/experiments/hd_epic_mcq_shortlist_joint.py)
+## Core Thesis Story
 
-Current canonical behavior for `ours`:
-- `L3 -> L2` candidate harvest
-- deterministic `k=5` shortlist
-- split final stage:
-  - candidate selection
-  - answer from selected candidate only
-- `L1` keyframe sampling inside shortlisted `L2` clips
+The strongest evidence for the hierarchical memory approach currently lies in **temporal grounding and retrieval**, especially on HD-EPIC. End-to-end MCQ accuracy on LongVideoBench is more mixed: direct L1 retrieval is a strong baseline, so LVB should be reported as retrieval-augmented QA rather than as a clean win for every hierarchy variant.
 
-Main entrypoint:
-- [`run_mcq_shortlist_joint.py`](/home/tranduong/dev/hm_vqa/evals/hd_epic/run_mcq_shortlist_joint.py)
+### Key Findings
 
-Comparison runners:
-- [`run_batch.py`](/home/tranduong/dev/hm_vqa/evals/hd_epic/run_batch.py)
-- [`run_staged_benchmark.py`](/home/tranduong/dev/hm_vqa/evals/hd_epic/run_staged_benchmark.py)
+1. **HD-EPIC localization:** L3 plus L2/ViCLIP retrieval gives much stronger temporal evidence coverage than L3-only retrieval.
+2. **LongVideoBench QA:** Retrieval helps over pure uniform-frame VLM baselines, but direct L1 retrieval remains highly competitive.
+3. **Resource profile:** HM-style embedding retrieval is lightweight compared with Vgent-style graph construction, which is dominated by VLM description generation and graph/cache construction.
+4. **Evaluation direction:** MCQ accuracy alone hides whether a method found correct evidence or the VLM guessed correctly from weak evidence.
 
-## Repo Layout
+## Repository Layout
 
 ### `src/`
-- model wrappers and reusable pipeline support
-- `src/pipeline/`
-  - config
-  - retrieval/segmentation helpers
-  - metrics/io/types
-  - tools
-  - experiments
+- [`src/answering`](/home/tranduong/dev/hm_vqa/src/answering): VLM answerers (primarily Qwen-VL based).
+- [`src/ingestion`](/home/tranduong/dev/hm_vqa/src/ingestion): Frame/video ingestion and OpenCLIP/ViCLIP feature caching.
+- [`src/retrieval`](/home/tranduong/dev/hm_vqa/src/retrieval): Hierarchical index construction and retrieval logic.
+- [`src/segmentation`](/home/tranduong/dev/hm_vqa/src/segmentation): Adaptive boundary detection and multi-scale windowing.
 
 ### `evals/`
-- dataset-specific loaders, runners, and analysis
-- `evals/hd_epic/`
-  - HD-EPIC loaders, temporal helpers, and runners
-- `evals/hd_epic/analysis/`
-  - HD-EPIC-specific analyses and pilot tooling utilities
-- `evals/methods/`
-  - benchmark-facing method wrappers
-- `evals/ablations/`
-  - benchmark-facing ablation wrappers
+- [`evals/hd_epic`](/home/tranduong/dev/hm_vqa/evals/hd_epic): HD-EPIC runners (Strongest results for localization).
+- [`evals/longvideobench`](/home/tranduong/dev/hm_vqa/evals/longvideobench): LongVideoBench ingestion and inference runners.
+- [`evals/video_mme`](/home/tranduong/dev/hm_vqa/evals/video_mme): VideoMME ingestion and inference runners.
+- [`tools`](/home/tranduong/dev/hm_vqa/tools): Live monitors and Vgent utilities.
 
-### `mcp/`
-- MCP server and tool adapters for HM-VQA tool use
+For reproducible headless commands, see [`RUNBOOK.md`](/home/tranduong/dev/hm_vqa/RUNBOOK.md).
 
-### `docs/`
-- [`roadmap.md`](/home/tranduong/dev/hm_vqa/docs/roadmap.md)
-- [`taxonomy.md`](/home/tranduong/dev/hm_vqa/docs/taxonomy.md)
+## Latest Results (Summary)
 
-## Important Results Kept
+### HD-EPIC Localization (FGAL24)
+| Method | HitAny @5 |
+|---|---:|
+| L1 direct | `0.4217` |
+| L3 adaptive | `0.7333` |
+| L3 + L2 adaptive ViCLIP | **`0.8850`** |
 
-- pure VLM baseline:
-  - [`results/hd_epic_uniform_qwen_longvideo`](/home/tranduong/dev/hm_vqa/results/hd_epic_uniform_qwen_longvideo)
-- Stage 7 baseline:
-  - [`results/hd_epic_stage7_visual_verify_w5_s5_batch`](/home/tranduong/dev/hm_vqa/results/hd_epic_stage7_visual_verify_w5_s5_batch)
-- current comparison benchmark:
-  - [`results/pipeline/comparisons`](/home/tranduong/dev/hm_vqa/results/pipeline/comparisons)
-- current promoted pipeline analysis:
-  - [`results/pipeline/analysis/mcq_split_final_stage_think4_l1`](/home/tranduong/dev/hm_vqa/results/pipeline/analysis/mcq_split_final_stage_think4_l1)
-- grounding analyses:
-  - [`results/pipeline/analysis/grounding_quality`](/home/tranduong/dev/hm_vqa/results/pipeline/analysis/grounding_quality)
-  - [`results/pipeline/analysis/grounding_quality_extreme`](/home/tranduong/dev/hm_vqa/results/pipeline/analysis/grounding_quality_extreme)
+### LongVideoBench (Full 1337)
+| Method | Acc |
+|---|---:|
+| Pure VLM 16f | `0.4637` |
+| L1 direct 16f | `0.5228` |
+| HM L3 Adaptive 16f | `0.5198` |
 
 ## Environment
 
-Expected local setup:
-- Python env in `.venv`
-- repo root on `PYTHONPATH`
-- optional `.env` with tokens
-
-Example:
-
 ```bash
-PYTHONPATH=src .venv/bin/python evals/hd_epic/run_mcq_shortlist_joint.py P01-20240203-135502 --limit 50
+# Example: Run retrieval ablation on LongVideoBench
+PYTHONPATH=.:src .venv/bin/python -m evals.longvideobench.inference.run_retrieval_qa --help
 ```

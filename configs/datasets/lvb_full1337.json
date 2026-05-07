@@ -1,0 +1,10 @@
+{
+  "name": "lvb_full1337",
+  "dataset": "longvideobench",
+  "split": "val_full_1337",
+  "manifest": "local_storage/flat_files/manifests/longvideobench/lvb_val_full_1337_v1.json",
+  "video_root": "local_storage/flat_files/longvideobench/videos_full_val_1337_v1",
+  "feature_root": "local_storage/flat_files/longvideobench/openclip_1fps_lvb_val_full_1337_v1",
+  "derived_root": "local_storage/flat_files/longvideobench/derived_full1337_benchmark_v1",
+  "output_root": "results/longvideobench/full1337_benchmark_v1"
+}

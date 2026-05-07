@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import io
 import os
+import threading
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -49,6 +50,7 @@ class _APIRateLimiter:
         self.tpm = max(int(tpm), 1)
         self.request_times: deque[float] = deque()
         self.token_times: deque[_UsageSnapshot] = deque()
+        self._lock = threading.Lock()
 
     def _prune(self, now: float) -> None:
         cutoff = now - 60.0
@@ -60,23 +62,25 @@ class _APIRateLimiter:
     def before_request(self, estimated_tokens: int) -> None:
         estimated_tokens = max(int(estimated_tokens), 1)
         while True:
-            now = time.monotonic()
-            self._prune(now)
-            waits: list[float] = []
-            if len(self.request_times) >= self.rpm:
-                waits.append(60.0 - (now - self.request_times[0]) + 0.01)
-            token_total = sum(item.total_tokens for item in self.token_times)
-            if token_total + estimated_tokens > self.tpm and self.token_times:
-                waits.append(60.0 - (now - self.token_times[0].timestamp) + 0.01)
-            if not waits:
-                return
+            with self._lock:
+                now = time.monotonic()
+                self._prune(now)
+                waits: list[float] = []
+                if len(self.request_times) >= self.rpm:
+                    waits.append(60.0 - (now - self.request_times[0]) + 0.01)
+                token_total = sum(item.total_tokens for item in self.token_times)
+                if token_total + estimated_tokens > self.tpm and self.token_times:
+                    waits.append(60.0 - (now - self.token_times[0].timestamp) + 0.01)
+                if not waits:
+                    return
             time.sleep(max(waits))
 
     def after_request(self, total_tokens: int) -> None:
-        now = time.monotonic()
-        self._prune(now)
-        self.request_times.append(now)
-        self.token_times.append(_UsageSnapshot(timestamp=now, total_tokens=max(int(total_tokens), 1)))
+        with self._lock:
+            now = time.monotonic()
+            self._prune(now)
+            self.request_times.append(now)
+            self.token_times.append(_UsageSnapshot(timestamp=now, total_tokens=max(int(total_tokens), 1)))
 
 
 class QwenAPIAnswerer:
@@ -168,6 +172,7 @@ class QwenAPIAnswerer:
                     messages=[{"role": "user", "content": [{"type": "text", "text": prompt}]}],
                     max_tokens=(max_new_tokens or self.config.max_new_tokens),
                     temperature=0,
+                    extra_body={"enable_thinking": bool(self.config.enable_thinking)},
                 )
                 break
             except (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError) as exc:
@@ -237,6 +242,7 @@ class QwenAPIAnswerer:
                     messages=[{"role": "user", "content": content}],
                     max_tokens=(max_new_tokens or self.config.max_new_tokens),
                     temperature=0,
+                    extra_body={"enable_thinking": bool(self.config.enable_thinking)},
                 )
                 break
             except (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError) as exc:

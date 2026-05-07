@@ -1,0 +1,20 @@
+{
+  "name": "openclip_1fps_l3fixed60_l2fixed5_viclip",
+  "sample_fps": 1.0,
+  "image_max_size": 336,
+  "frame_encoder": "openclip",
+  "frame_encoder_model": "ViT-L-14",
+  "frame_encoder_pretrained": "laion2b_s32b_b82k",
+  "normalize_embeddings": true,
+  "l3_segmentation": "fixed",
+  "l3_window_seconds": 60.0,
+  "l3_stride_seconds": 60.0,
+  "l3_pooling": "mean",
+  "l2_segmentation": "fixed",
+  "l2_window_seconds": 5.0,
+  "l2_stride_seconds": 5.0,
+  "l2_pooling": "mean",
+  "l2_video_encoder": "viclip",
+  "l2_video_encoder_model": "OpenGVLab/ViCLIP-L-14-hf",
+  "l2_video_encoder_max_frames": 16
+}

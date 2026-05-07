@@ -3,6 +3,8 @@
 *.env
 /results
 /cache
+/local_storage/flat_files
+/local_storage/vector_indexes
 __pycache__/
 /models
 legacy_evals/

@@ -1,0 +1,13 @@
+{
+  "name": "fixed_l3_60_top3_16f",
+  "method": "l3",
+  "requires_memory": "openclip_1fps_l3fixed60",
+  "sample_fps": 1.0,
+  "max_frames": 16,
+  "image_max_size": 336,
+  "include_subtitles": true,
+  "l3_segmentation": "fixed",
+  "l3_window_seconds": 60.0,
+  "l3_stride_seconds": 60.0,
+  "top_l3_segments": 3
+}

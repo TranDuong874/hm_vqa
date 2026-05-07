@@ -1,0 +1,10 @@
+{
+  "name": "hd_epic_fgal24",
+  "dataset": "hd_epic",
+  "split": "fgal24",
+  "manifest": "results/hd_epic/manifests/fgal_24videos_600q_v1.json",
+  "video_root": "dataset/hd_epic_structured",
+  "feature_root": "local_storage/flat_files/hd_epic_features_1fps_fgal24_v1",
+  "derived_root": "local_storage/flat_files/hd_epic_derived_ablation_1fps_fgal24_v1",
+  "output_root": "results/hd_epic/ablations"
+}

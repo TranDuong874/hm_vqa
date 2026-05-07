@@ -154,23 +154,79 @@ def sample_video_selected_indices(
         raise RuntimeError(f"Invalid fps/frame count for video: {video_path}")
 
     step = _frame_step(native_fps, fps)
-    frame_index = 0
-    sampled_index = 0
-    while True:
-        ok, frame = capture.read()
-        if not ok:
-            break
-        if frame_index % step == 0:
-            if sampled_index in wanted_set:
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                captured[sampled_index] = _resize_frame_if_needed(Image.fromarray(frame_rgb), image_max_size)
-                times[sampled_index] = frame_index / native_fps
-                if len(captured) == len(wanted):
-                    break
-            sampled_index += 1
-        frame_index += 1
+
+    # For sparse retrieval/evaluation we often need only 16-24 frames spread over
+    # a long video. Sequential decoding would scan the whole file up to the last
+    # requested timestamp. Seeking directly is much faster for this case.
+    if len(wanted) <= 64:
+        for sampled_index in wanted:
+            frame_index = int(sampled_index * step)
+            if frame_index >= total_frames:
+                continue
+            capture.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+            ok, frame = capture.read()
+            if not ok:
+                continue
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            captured[sampled_index] = _resize_frame_if_needed(Image.fromarray(frame_rgb), image_max_size)
+            times[sampled_index] = frame_index / native_fps
+    else:
+        frame_index = 0
+        sampled_index = 0
+        while True:
+            ok, frame = capture.read()
+            if not ok:
+                break
+            if frame_index % step == 0:
+                if sampled_index in wanted_set:
+                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    captured[sampled_index] = _resize_frame_if_needed(Image.fromarray(frame_rgb), image_max_size)
+                    times[sampled_index] = frame_index / native_fps
+                    if len(captured) == len(wanted):
+                        break
+                sampled_index += 1
+            frame_index += 1
 
     capture.release()
+
+    # Some codecs/containers allow sequential decoding of tail frames but fail
+    # when OpenCV seeks directly to those same frame indices. Retry missing
+    # sparse requests by decoding sequentially to the exact native frame.
+    missing_after_seek = [index for index in wanted if index not in captured]
+    if missing_after_seek:
+        native_by_sampled = {
+            sampled_index: int(sampled_index * step)
+            for sampled_index in missing_after_seek
+            if int(sampled_index * step) < total_frames
+        }
+        wanted_native = set(native_by_sampled.values())
+        if wanted_native:
+            sequential_capture = cv2.VideoCapture(str(video_path))
+            if sequential_capture.isOpened():
+                frame_index = 0
+                max_native = max(wanted_native)
+                while frame_index <= max_native:
+                    ok, frame = sequential_capture.read()
+                    if not ok:
+                        break
+                    if frame_index in wanted_native:
+                        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        sampled_matches = [
+                            sampled_index
+                            for sampled_index, native_index in native_by_sampled.items()
+                            if native_index == frame_index
+                        ]
+                        for sampled_index in sampled_matches:
+                            captured[sampled_index] = _resize_frame_if_needed(
+                                Image.fromarray(frame_rgb),
+                                image_max_size,
+                            )
+                            times[sampled_index] = frame_index / native_fps
+                        if all(index in captured for index in native_by_sampled):
+                            break
+                    frame_index += 1
+                sequential_capture.release()
+
     missing = [index for index in wanted if index not in captured]
     if missing:
         raise RuntimeError(f"Failed to sample requested frame indices from {video_path}: {missing[:8]}")

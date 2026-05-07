@@ -1,0 +1,2 @@
+"""LongVideoBench ingestion entrypoints."""
+

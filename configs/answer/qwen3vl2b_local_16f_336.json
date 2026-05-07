@@ -1,0 +1,9 @@
+{
+  "name": "qwen3vl2b_local_16f_336",
+  "model_id": "Qwen/Qwen3-VL-2B-Instruct",
+  "backend": "local",
+  "max_new_tokens": 32,
+  "image_max_size": 336,
+  "load_in_4bit": true,
+  "enable_thinking": false
+}

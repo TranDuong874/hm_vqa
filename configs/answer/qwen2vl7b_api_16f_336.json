@@ -1,0 +1,11 @@
+{
+  "name": "qwen2vl7b_api_16f_336",
+  "model_id": "Qwen/Qwen2-VL-7B-Instruct",
+  "backend": "api",
+  "max_new_tokens": 32,
+  "image_max_size": 336,
+  "enable_thinking": false,
+  "api_key_env_var": "ALIBABA_CLOUD_API",
+  "api_requests_per_minute": 720,
+  "api_tokens_per_minute": 1000000
+}

@@ -1,0 +1,9 @@
+{
+  "name": "l1_direct_16f",
+  "method": "l1",
+  "requires_memory": "openclip_1fps",
+  "sample_fps": 1.0,
+  "max_frames": 16,
+  "image_max_size": 336,
+  "include_subtitles": true
+}
