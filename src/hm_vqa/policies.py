@@ -35,6 +35,7 @@ class RetrievalPolicy:
     method: str
     name: str = "custom"
     requires_memory: str | None = None
+    vector_backend: str = "torch"
     sample_fps: float = 1.0
     feature_eval_fps: float | None = None
     max_frames: int = 16
@@ -59,6 +60,7 @@ class RetrievalPolicy:
     l2_frame_score_top_m: int = 4
     l2_frame_score_temperature: float = 0.07
     l2_rerank_encoder: str = "openclip"
+    l2_rerank_query_mode: str = "target"
     l2_evidence_per_l3: int = 2
     l1_evidence_per_l2: int = 4
     evidence_text_mode: str = "frames"

@@ -138,6 +138,7 @@ def _parse_args() -> argparse.Namespace:
         "--method",
         choices=[
             "l1",
+            "l1_project_l3",
             "l2",
             "l3",
             "l3_rerank_l2",
@@ -277,6 +278,29 @@ def _segment_hits_for_method(
     ]
 
 
+def _normalize_gold_spans(gold_spans: list[Any], video_id: str) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    for span in gold_spans:
+        if isinstance(span, dict):
+            normalized.append(
+                {
+                    "video_id": str(span.get("video_id", video_id)),
+                    "start_time_sec": float(span["start_time_sec"]),
+                    "end_time_sec": float(span["end_time_sec"]),
+                }
+            )
+        else:
+            start_time_sec, end_time_sec = span
+            normalized.append(
+                {
+                    "video_id": str(video_id),
+                    "start_time_sec": float(start_time_sec),
+                    "end_time_sec": float(end_time_sec),
+                }
+            )
+    return normalized
+
+
 
 
 def _scoped_retrieve(
@@ -364,6 +388,29 @@ def _scoped_retrieve(
     if routing_method == "l1":
         frame_hits = _retrieve_l1()
         return {"frame_hits": frame_hits, "l2_hits": [], "l3_hits": []}
+
+    if routing_method == "l1_project_l3":
+        retriever._ensure_l3(artifacts)
+        assert artifacts.l3_segments is not None
+        scoped_l3_segments = [
+            segment
+            for segment in artifacts.l3_segments
+            if _segment_in_scope(
+                segment.start_time_sec,
+                segment.end_time_sec,
+                scope_start_sec,
+                scope_end_sec,
+            )
+        ]
+        l3_hits = retrieve_top_segments_from_frame_scores(
+            query_embedding=query_embedding,
+            frame_embeddings=artifacts.frame_embeddings,
+            segments=scoped_l3_segments,
+            top_k=retriever.config.top_l3_segments,
+            top_m=8,
+            aggregation="topm_mean",
+        )
+        return {"frame_hits": [], "l2_hits": [], "l3_hits": l3_hits}
 
     if routing_method == "l2":
         return _retrieve_l2_global()
@@ -602,7 +649,7 @@ def _scoped_retrieve(
 
 def _output_name(config: AblationRunConfig, *, coverage_threshold: float) -> str:
     name = config.method
-    if config.method in {"l3", "l3_rerank_l2"} and config.l3_segmentation == "fixed":
+    if config.method in {"l1_project_l3", "l3", "l3_rerank_l2"} and config.l3_segmentation == "fixed":
         name += f"_l3fixed{config.l3_window_seconds:g}s_s{config.l3_stride_seconds:g}s"
     if config.top_l3_segments != max(DEFAULT_RECALL_K):
         name += f"_l3k{config.top_l3_segments:g}"
@@ -750,7 +797,10 @@ def main() -> None:
                     example_id=example.example_id,
                 )
                 scope_start_sec, scope_end_sec = example_scope_for_video(temporal_example, example.video_id)
-                gold_spans = gold_spans_for_video(temporal_example, example.video_id)
+                gold_spans = _normalize_gold_spans(
+                    gold_spans_for_video(temporal_example, example.video_id),
+                    example.video_id,
+                )
                 retrieval_info = _scoped_retrieve(
                     retriever,
                     example=example,

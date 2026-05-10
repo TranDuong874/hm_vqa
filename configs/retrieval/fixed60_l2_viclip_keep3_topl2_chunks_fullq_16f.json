@@ -1,0 +1,22 @@
+{
+  "name": "fixed60_l2_viclip_keep3_topl2_chunks_fullq_16f",
+  "method": "l3_rerank_l2",
+  "requires_memory": "openclip_1fps_l3fixed60_l2fixed5_viclip",
+  "sample_fps": 1.0,
+  "max_frames": 16,
+  "image_max_size": 336,
+  "include_subtitles": false,
+  "l3_segmentation": "fixed",
+  "l3_window_seconds": 60.0,
+  "l3_stride_seconds": 60.0,
+  "top_l3_segments": 10,
+  "l2_segmentation": "fixed",
+  "l2_window_seconds": 5.0,
+  "l2_stride_seconds": 5.0,
+  "top_l2_segments": 3,
+  "l2_rerank_encoder": "viclip",
+  "l2_rerank_query_mode": "full",
+  "l3_rerank_keep": 3,
+  "l3_rerank_evidence_source": "top_l2",
+  "evidence_text_mode": "chunks"
+}

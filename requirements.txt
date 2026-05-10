@@ -1,4 +1,5 @@
 numpy
+faiss-cpu
 torch
 transformers
 open-clip-torch

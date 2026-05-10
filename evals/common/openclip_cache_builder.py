@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 
 import cv2
@@ -138,6 +139,7 @@ def build_openclip_feature_cache(
             output_dir.mkdir(parents=True, exist_ok=True)
             for shard in output_dir.glob("shard_*.pt"):
                 shard.unlink()
+            started_at = time.perf_counter()
             stats = _encode_video(
                 video_path=video_path,
                 output_dir=output_dir,
@@ -146,6 +148,7 @@ def build_openclip_feature_cache(
                 shard_size=int(shard_size),
                 encoder=encoder,
             )
+            elapsed_sec = time.perf_counter() - started_at
             meta = {
                 "source_video": str(video_path.resolve()),
                 "fps": float(sample_fps),
@@ -157,8 +160,12 @@ def build_openclip_feature_cache(
                 "batch_size": int(batch_size),
                 "shard_size": int(shard_size),
                 "duration_sec": round(float(stats["duration_sec"]), 3),
+                "elapsed_sec": round(float(elapsed_sec), 3),
             }
             meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-            print(f"[done] {video_id} sampled={stats['sampled_frames']} duration={stats['duration_sec']:.1f}s")
+            print(
+                f"[done] {video_id} sampled={stats['sampled_frames']} "
+                f"duration={stats['duration_sec']:.1f}s elapsed={elapsed_sec:.2f}s"
+            )
     finally:
         del encoder

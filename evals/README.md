@@ -30,6 +30,8 @@ Current dataset packages:
   - `dataset.py`, `paths.py`, `ingestion`, `inference`.
 - `evals/video_mme/`
   - `dataset.py`, `ingestion`, `inference`.
+- `evals/mlvu/`
+  - `dataset.py`, `ingestion`, `inference`.
 - `evals/vgent/`
   - `cache`, `inference`, `retrieval`. The `cache` package name follows
     Vgent's terminology; generated artifacts should still be written under
@@ -51,6 +53,9 @@ Existing runners keep CLI flags for compatibility:
 - window policy: `--l3-window-seconds`, `--l2-window-seconds`, stride flags
 - reranker: `--l2-rerank-encoder openclip|viclip`
 - evidence policy: `--l3-rerank-evidence-source`, `--max-frames`
+- vector search: `--vector-backend torch|faiss`; FAISS stores optional
+  `*.faiss` indexes under derived local storage while preserving the original
+  `.pt` embeddings.
 - answer backend: `--backend local|api`
 
 Do not add new queue `.sh` files. Put repeatable commands in `RUNBOOK.md` and

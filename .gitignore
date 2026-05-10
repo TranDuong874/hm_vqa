@@ -17,5 +17,6 @@ yolo11n.pt
 tests/
 /pretrained
 thirdparty/*
-/.cache
+.cache/
 docs/
+/demo_vids

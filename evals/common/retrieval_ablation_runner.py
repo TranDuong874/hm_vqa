@@ -4,13 +4,17 @@ import argparse
 import gc
 import hashlib
 import json
+import os
 import re
-from dataclasses import asdict, dataclass
+import time
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+import cv2
 import numpy as np
 import torch
+from PIL import Image
 
 from answering.factory import build_answerer
 from answering.qwen_vl import AnswerConfig
@@ -32,6 +36,7 @@ from evals.common.vlm_baseline_runner import (
 from ingestion import OpenCLIPEncoder
 from ingestion.viclip import ViCLIPEncoder
 from evals.common.video_sampling import sample_uniform_video_frames as _sample_uniform_video_frames
+from retrieval.faiss_index import load_or_build_ip_index, search_ip_index, write_ip_index
 from retrieval import (
     adapt_query_embedding_for_segment_pooling,
     build_query_text,
@@ -51,6 +56,7 @@ from segmentation.video import compute_motion_energy_for_frame_indices
 DEFAULT_L3_RERANK_KEEP = 5
 L2_SCORE_TOP_M = 4
 VICLIP_L2_MAX_FRAMES = 16
+VICLIP_BATCH_SIZE = int(os.environ.get("HM_VQA_VICLIP_BATCH_SIZE", "8"))
 DEFAULT_L2_EVIDENCE_PER_L3 = 2
 DEFAULT_L1_EVIDENCE_PER_L2 = 4
 TARGET_PATTERN = re.compile(r"<([^<>]+)>")
@@ -84,11 +90,18 @@ class VideoArtifacts:
     l2_embeddings: torch.Tensor | None = None
     l3_segments: list[Segment] | None = None
     l3_embeddings: torch.Tensor | None = None
+    faiss_indices: dict[str, Any] = field(default_factory=dict)
 
 
 def add_retrieval_ablation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--retrieval-config", type=Path, default=None)
     parser.add_argument("--method", choices=["l1", "l2", "l3", "l3_rerank_l2", "l1_plus_l3_rerank_l2"], default=None)
+    parser.add_argument(
+        "--vector-backend",
+        choices=["torch", "faiss"],
+        default="torch",
+        help="Backend for dense inner-product top-k search. Torch is the historical default; FAISS is optional.",
+    )
     parser.add_argument("--sample-fps", type=float, default=1.0)
     parser.add_argument("--feature-eval-fps", type=float, default=None)
     parser.add_argument("--max-frames", type=int, default=16)
@@ -112,6 +125,12 @@ def add_retrieval_ablation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--top-l2-segments", type=int, default=3)
     parser.add_argument("--top-l3-segments", type=int, default=2)
     parser.add_argument("--l2-rerank-encoder", choices=["openclip", "viclip"], default="openclip")
+    parser.add_argument(
+        "--l2-rerank-query-mode",
+        choices=["target", "full"],
+        default="target",
+        help="Text used for L2 reranking. 'target' preserves existing behavior; 'full' uses question plus options.",
+    )
     parser.add_argument("--l3-rerank-keep", type=int, default=DEFAULT_L3_RERANK_KEEP)
     parser.add_argument(
         "--l3-rerank-evidence-source",
@@ -135,6 +154,7 @@ def add_retrieval_ablation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--backend", choices=["local", "api"], default="local")
     parser.add_argument("--max-new-tokens", type=int, default=32)
     parser.add_argument("--enable-thinking", action="store_true")
+    parser.add_argument("--api-base-url", default=None)
     parser.add_argument("--api-key-env-var", default="ALIBABA_CLOUD_API")
     parser.add_argument("--api-requests-per-minute", type=int, default=60)
     parser.add_argument("--api-tokens-per-minute", type=int, default=100000)
@@ -150,6 +170,7 @@ def build_retrieval_run_config(args: argparse.Namespace) -> AblationRunConfig:
         raise ValueError("Either --method or --retrieval-config is required.")
     return AblationRunConfig(
         method=args.method,
+        vector_backend=args.vector_backend,
         sample_fps=args.sample_fps,
         feature_eval_fps=args.feature_eval_fps,
         max_frames=args.max_frames,
@@ -167,6 +188,7 @@ def build_retrieval_run_config(args: argparse.Namespace) -> AblationRunConfig:
         l2_frame_score_top_m=args.l2_frame_score_top_m,
         l2_frame_score_temperature=args.l2_frame_score_temperature,
         l2_rerank_encoder=args.l2_rerank_encoder,
+        l2_rerank_query_mode=args.l2_rerank_query_mode,
         top_l2_segments=args.top_l2_segments,
         top_l3_segments=args.top_l3_segments,
         l3_rerank_keep=args.l3_rerank_keep,
@@ -202,12 +224,16 @@ def build_retrieval_output_name(*, model_id: str, run_config: AblationRunConfig)
             output_name += f"_keep{run_config.l3_rerank_keep:g}"
         if run_config.l2_rerank_encoder != "openclip":
             output_name += f"_l2enc{run_config.l2_rerank_encoder}"
+        if run_config.l2_rerank_query_mode != "target":
+            output_name += f"_l2q{run_config.l2_rerank_query_mode}"
         if run_config.l3_rerank_evidence_source != "reranked_l3":
             output_name += f"_evi{run_config.l3_rerank_evidence_source}"
             if run_config.l3_rerank_evidence_source == "top_l2_per_l3":
                 output_name += f"_l2p{run_config.l2_evidence_per_l3:g}_l1p{run_config.l1_evidence_per_l2:g}"
     if run_config.evidence_text_mode != "frames":
         output_name += f"_evitext{run_config.evidence_text_mode}"
+    if run_config.vector_backend != "torch":
+        output_name += f"_vec{run_config.vector_backend}"
     output_name += f"_{run_config.max_frames}f_{run_config.image_max_size}"
     return output_name
 
@@ -375,6 +401,48 @@ def _segment_sample_indices(segment_hit: SegmentHit, count: int) -> list[int]:
     return [int(indices[int(round(position))]) for position in positions]
 
 
+def _sample_viclip_clip_from_open_capture(
+    *,
+    capture: cv2.VideoCapture,
+    native_fps: float,
+    total_frames: int,
+    start_time_sec: float,
+    end_time_sec: float,
+    frame_budget: int,
+    required_frames: int,
+) -> list[Image.Image]:
+    start = max(float(start_time_sec), 0.0)
+    end = max(float(end_time_sec), start)
+    if frame_budget <= 1 or end <= start:
+        timestamps = [(start + end) / 2.0]
+    else:
+        timestamps = np.linspace(start, end, num=int(frame_budget), endpoint=True).astype(float).tolist()
+
+    frames: list[Image.Image] = []
+    for timestamp in timestamps:
+        native_index = int(round(float(timestamp) * float(native_fps)))
+        native_index = max(0, min(native_index, int(total_frames) - 1))
+        capture.set(cv2.CAP_PROP_POS_FRAMES, native_index)
+        ok, frame = capture.read()
+        if not ok:
+            capture.set(cv2.CAP_PROP_POS_MSEC, float(timestamp) * 1000.0)
+            ok, frame = capture.read()
+        if not ok:
+            continue
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frames.append(Image.fromarray(frame_rgb))
+
+    if not frames:
+        raise RuntimeError(f"No frames sampled for ViCLIP clip at {start:.3f}-{end:.3f}s")
+    if len(frames) >= required_frames:
+        step_indices = torch.linspace(0, len(frames) - 1, steps=int(required_frames))
+        return [frames[int(round(float(step)))] for step in step_indices.tolist()]
+    selected = list(frames)
+    while len(selected) < required_frames:
+        selected.append(selected[-1])
+    return selected
+
+
 class AblationRetriever:
     def __init__(
         self,
@@ -481,6 +549,82 @@ class AblationRetriever:
             }
         )
         return self._video_derived_dir(video_id) / f"l2_viclip_{key}"
+
+    def _frame_faiss_path(self, artifacts: VideoArtifacts) -> Path:
+        key = self._stable_hash(
+            {
+                "version": 1,
+                "kind": "frame_openclip_ip",
+                "sample_fps": self.config.sample_fps,
+                "feature_eval_fps": self.config.feature_eval_fps,
+                "count": int(artifacts.frame_embeddings.shape[0]),
+                "dim": int(artifacts.frame_embeddings.shape[1]) if artifacts.frame_embeddings.ndim == 2 else 0,
+            }
+        )
+        return self._video_derived_dir(artifacts.video_id) / f"faiss_frame_{key}.index"
+
+    def _cached_faiss_index(self, *, artifacts: VideoArtifacts, cache_key: str, path: Path, embeddings: torch.Tensor) -> Any:
+        cached = artifacts.faiss_indices.get(cache_key)
+        if cached is not None:
+            return cached
+        index = load_or_build_ip_index(path, embeddings)
+        artifacts.faiss_indices[cache_key] = index
+        return index
+
+    def _segment_hits_from_scores(
+        self,
+        *,
+        segments: list[Segment],
+        scores: np.ndarray,
+        order: np.ndarray,
+    ) -> list[SegmentHit]:
+        hits: list[SegmentHit] = []
+        for score, idx in zip(scores, order, strict=False):
+            segment = segments[int(idx)]
+            hits.append(
+                SegmentHit(
+                    segment_id=segment.segment_id,
+                    score=float(score),
+                    start_index=int(segment.start_index),
+                    end_index=int(segment.end_index),
+                    start_time_sec=float(segment.start_time_sec),
+                    end_time_sec=float(segment.end_time_sec),
+                )
+            )
+        return hits
+
+    def _retrieve_top_segments(
+        self,
+        *,
+        artifacts: VideoArtifacts,
+        layer: str,
+        query_embedding: torch.Tensor,
+        segment_embeddings: torch.Tensor,
+        segments: list[Segment],
+        top_k: int,
+    ) -> list[SegmentHit]:
+        if self.config.vector_backend == "faiss" and segment_embeddings.numel():
+            index_path: Path | None = None
+            if layer == "l2" and segments is artifacts.l2_segments:
+                index_path = self._l2_cache_dir(artifacts.video_id) / "embeddings.faiss"
+            elif layer == "l3" and segments is artifacts.l3_segments:
+                index_path = self._l3_cache_dir(artifacts.video_id) / "embeddings.faiss"
+            if index_path is not None:
+                index = self._cached_faiss_index(
+                    artifacts=artifacts,
+                    cache_key=f"{layer}:{index_path}",
+                    path=index_path,
+                    embeddings=segment_embeddings,
+                )
+                scores, order = search_ip_index(index, query_embedding, top_k)
+                return self._segment_hits_from_scores(segments=segments, scores=scores, order=order)
+        return retrieve_top_segments(
+            query_embedding=query_embedding,
+            segment_embeddings=segment_embeddings,
+            segments=segments,
+            top_k=top_k,
+            backend=self.config.vector_backend,
+        )
 
     def _serialize_segments(self, segments: list[Segment]) -> list[dict[str, Any]]:
         return [
@@ -675,6 +819,9 @@ class AblationRetriever:
         cache_dir.mkdir(parents=True, exist_ok=True)
         segments_path.write_text(json.dumps(self._serialize_segments(segments), indent=2), encoding="utf-8")
         torch.save(embeddings, embeddings_path)
+        if self.config.vector_backend == "faiss" and embeddings.numel():
+            index = write_ip_index(cache_dir / "embeddings.faiss", embeddings)
+            artifacts.faiss_indices[f"l2:{cache_dir / 'embeddings.faiss'}"] = index
 
     def _ensure_viclip_l2_embeddings(self, artifacts: VideoArtifacts) -> torch.Tensor:
         self._ensure_l2(artifacts)
@@ -765,19 +912,69 @@ class AblationRetriever:
         segment_cache_dir = cache_dir / "segment_embeddings"
         segment_cache_dir.mkdir(parents=True, exist_ok=True)
         embeddings: dict[int, torch.Tensor] = {}
-        for offset, segment_index in enumerate(sorted(segment_indices), start=1):
+        missing_segment_indices: list[int] = []
+        for segment_index in sorted(segment_indices):
             segment_path = segment_cache_dir / f"{int(segment_index):06d}.pt"
             if segment_path.exists():
                 embeddings[int(segment_index)] = torch.load(segment_path, map_location="cpu").float()
                 continue
-            segment = artifacts.l2_segments[int(segment_index)]
-            embedding = self._encode_viclip_l2_segment(artifacts=artifacts, segment=segment)
-            torch.save(embedding, segment_path)
-            embeddings[int(segment_index)] = embedding
-            if offset % 16 == 0:
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+            missing_segment_indices.append(int(segment_index))
+
+        if missing_segment_indices:
+            encoder = _get_viclip_encoder()
+            capture = cv2.VideoCapture(str(artifacts.video_path))
+            if not capture.isOpened():
+                raise RuntimeError(f"Failed to open video for ViCLIP L2 sampling: {artifacts.video_path}")
+            native_fps = float(capture.get(cv2.CAP_PROP_FPS) or 0.0)
+            total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+            if native_fps <= 0.0 or total_frames <= 0:
+                capture.release()
+                raise RuntimeError(f"Invalid video metadata for ViCLIP L2 sampling: {artifacts.video_path}")
+            try:
+                for batch_start in range(0, len(missing_segment_indices), max(VICLIP_BATCH_SIZE, 1)):
+                    batch_indices = missing_segment_indices[batch_start : batch_start + max(VICLIP_BATCH_SIZE, 1)]
+                    clips: list[list[Image.Image]] = []
+                    valid_indices: list[int] = []
+                    for segment_index in batch_indices:
+                        segment = artifacts.l2_segments[int(segment_index)]
+                        candidate_budget = min(
+                            VICLIP_L2_MAX_FRAMES,
+                            max(1, int(segment.end_index) - int(segment.start_index) + 1),
+                        )
+                        try:
+                            clip = _sample_viclip_clip_from_open_capture(
+                                capture=capture,
+                                native_fps=native_fps,
+                                total_frames=total_frames,
+                                start_time_sec=float(segment.start_time_sec),
+                                end_time_sec=float(segment.end_time_sec),
+                                frame_budget=candidate_budget,
+                                required_frames=encoder.num_frames,
+                            )
+                        except RuntimeError:
+                            embedding = self._encode_viclip_l2_segment(artifacts=artifacts, segment=segment)
+                            segment_path = segment_cache_dir / f"{int(segment_index):06d}.pt"
+                            torch.save(embedding, segment_path)
+                            embeddings[int(segment_index)] = embedding
+                            continue
+                        clips.append(clip)
+                        valid_indices.append(int(segment_index))
+                    if clips:
+                        clip_embeddings = encoder.encode_video_clips(
+                            clips,
+                            batch_size=max(VICLIP_BATCH_SIZE, 1),
+                        ).float().cpu()
+                        for offset, segment_index in enumerate(valid_indices):
+                            embedding = clip_embeddings[offset]
+                            segment_path = segment_cache_dir / f"{int(segment_index):06d}.pt"
+                            torch.save(embedding, segment_path)
+                            embeddings[int(segment_index)] = embedding
+                    del clips
+                    gc.collect()
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+            finally:
+                capture.release()
         (cache_dir / "segments.json").write_text(json.dumps(self._serialize_segments(artifacts.l2_segments), indent=2), encoding="utf-8")
         return embeddings
 
@@ -825,6 +1022,9 @@ class AblationRetriever:
         cache_dir.mkdir(parents=True, exist_ok=True)
         segments_path.write_text(json.dumps(self._serialize_segments(segments), indent=2), encoding="utf-8")
         torch.save(embeddings, embeddings_path)
+        if self.config.vector_backend == "faiss" and embeddings.numel():
+            index = write_ip_index(cache_dir / "embeddings.faiss", embeddings)
+            artifacts.faiss_indices[f"l3:{cache_dir / 'embeddings.faiss'}"] = index
 
     def _frame_hits_from_indices(
         self,
@@ -833,12 +1033,31 @@ class AblationRetriever:
         query_embedding: torch.Tensor,
         allowed_indices: list[int] | None,
     ) -> list[FrameHit]:
+        if self.config.vector_backend == "faiss" and allowed_indices is None and artifacts.frame_embeddings.numel():
+            index = self._cached_faiss_index(
+                artifacts=artifacts,
+                cache_key=f"frame:{self._frame_faiss_path(artifacts)}",
+                path=self._frame_faiss_path(artifacts),
+                embeddings=artifacts.frame_embeddings,
+            )
+            scores, order = search_ip_index(index, query_embedding, self.config.max_frames)
+            hits = [
+                FrameHit(
+                    frame_index=int(frame_index),
+                    time_sec=float(artifacts.timestamps[int(frame_index)]),
+                    score=float(score),
+                )
+                for score, frame_index in zip(scores, order, strict=False)
+            ]
+            hits.sort(key=lambda hit: hit.frame_index)
+            return hits
         return retrieve_top_frames(
             query_embedding=query_embedding,
             frame_embeddings=artifacts.frame_embeddings,
             timestamps=artifacts.timestamps,
             top_k=self.config.max_frames,
             allowed_indices=allowed_indices,
+            backend=self.config.vector_backend,
         )
 
     def _frame_hits_for_indices(
@@ -1036,7 +1255,9 @@ class AblationRetriever:
                 end=scope_end_sec,
             )
             if self.config.l2_scoring == "embedding":
-                l2_hits = retrieve_top_segments(
+                l2_hits = self._retrieve_top_segments(
+                    artifacts=artifacts,
+                    layer="l2",
                     query_embedding=pooled_query_embedding,
                     segment_embeddings=scoped_l2_embeddings,
                     segments=scoped_l2_segments,
@@ -1089,13 +1310,19 @@ class AblationRetriever:
                 start=scope_start_sec,
                 end=scope_end_sec,
             )
-            l3_hits = retrieve_top_segments(
+            l3_hits = self._retrieve_top_segments(
+                artifacts=artifacts,
+                layer="l3",
                 query_embedding=pooled_query_embedding,
                 segment_embeddings=scoped_l3_embeddings,
                 segments=scoped_l3_segments,
                 top_k=self.config.top_l3_segments,
             )
-            target_text = _extract_target_text(example.question)
+            target_text = (
+                build_query_text(example.question, example.options)
+                if self.config.l2_rerank_query_mode == "full"
+                else _extract_target_text(example.question)
+            )
             reranked_l3_hits, rerank_debug = self._rerank_l3_hits_with_l2(
                 artifacts=artifacts,
                 query_embedding=query_embedding,
@@ -1236,7 +1463,9 @@ class AblationRetriever:
             start=scope_start_sec,
             end=scope_end_sec,
         )
-        l3_hits = retrieve_top_segments(
+        l3_hits = self._retrieve_top_segments(
+            artifacts=artifacts,
+            layer="l3",
             query_embedding=pooled_query_embedding,
             segment_embeddings=scoped_l3_embeddings,
             segments=scoped_l3_segments,
@@ -1297,13 +1526,18 @@ def run_retrieval_ablation(
             subtitle_context = None
             try:
                 _log_line(progress_path, f"[item_start] index={index}/{len(examples)} example_id={example.example_id} video={example.video_id}")
+                item_start_time = time.perf_counter()
+                retrieve_start_time = time.perf_counter()
                 target_indices, retrieval_info = retriever.retrieve(example=example)
+                retrieve_sec = time.perf_counter() - retrieve_start_time
+                frame_load_start_time = time.perf_counter()
                 frames, frame_hits, _ = load_selected_video_frames(
                     Path(example.video_path),
                     sample_fps=run_config.sample_fps,
                     target_indices=target_indices,
                     image_max_size=run_config.image_max_size,
                 )
+                frame_load_sec = time.perf_counter() - frame_load_start_time
                 frame_times = [float(hit.time_sec) for hit in frame_hits]
                 subtitle_texts: list[str] | None = None
                 if run_config.include_subtitles:
@@ -1330,6 +1564,7 @@ def run_retrieval_ablation(
                 else:
                     frame_texts = _merge_frame_texts(frame_times=frame_times, subtitle_texts=subtitle_texts)
                     prompt_prefix = run_config.prompt_prefix
+                answer_start_time = time.perf_counter()
                 prediction = answerer.answer_frames(
                     frames=frames,
                     question=example.question,
@@ -1337,6 +1572,8 @@ def run_retrieval_ablation(
                     prompt_prefix=prompt_prefix,
                     frame_texts=frame_texts,
                 )
+                answer_wall_sec = time.perf_counter() - answer_start_time
+                item_wall_sec = time.perf_counter() - item_start_time
             except Exception as exc:
                 if _is_api_content_filter_error(exc):
                     row = {
@@ -1384,6 +1621,10 @@ def run_retrieval_ablation(
                 "choice_correct": (prediction.predicted_letter == gold_letter) if gold_letter is not None else None,
                 "raw_answer": prediction.raw_text,
                 "generation_sec": prediction.generation_sec,
+                "answer_wall_sec": answer_wall_sec,
+                "retrieve_sec": retrieve_sec,
+                "frame_load_sec": frame_load_sec,
+                "item_wall_sec": item_wall_sec,
                 "prompt_tokens": prediction.prompt_tokens,
                 "completion_tokens": prediction.completion_tokens,
                 "total_tokens": prediction.total_tokens,
@@ -1411,7 +1652,13 @@ def run_retrieval_ablation(
             _write_json(rolling_summary_path, {"completed": len(rows), "total": len(examples), **_summarize_rows(rows)})
             _log_line(
                 progress_path,
-                f"[item_done] index={index}/{len(examples)} example_id={example.example_id} predicted={prediction.predicted_letter} correct={row['choice_correct']} gen_sec={prediction.generation_sec}",
+                (
+                    f"[item_done] index={index}/{len(examples)} example_id={example.example_id} "
+                    f"predicted={prediction.predicted_letter} correct={row['choice_correct']} "
+                    f"retrieve_sec={retrieve_sec:.3f} frame_load_sec={frame_load_sec:.3f} "
+                    f"answer_wall_sec={answer_wall_sec:.3f} gen_sec={prediction.generation_sec} "
+                    f"item_wall_sec={item_wall_sec:.3f}"
+                ),
             )
     finally:
         answerer.unload()
@@ -1420,6 +1667,7 @@ def run_retrieval_ablation(
     summary = {
         "run_config": {
             "method": run_config.method,
+            "vector_backend": run_config.vector_backend,
             "sample_fps": run_config.sample_fps,
             "feature_eval_fps": run_config.feature_eval_fps,
             "max_frames": run_config.max_frames,
@@ -1438,6 +1686,7 @@ def run_retrieval_ablation(
             "l2_frame_score_top_m": run_config.l2_frame_score_top_m,
             "l2_frame_score_temperature": run_config.l2_frame_score_temperature,
             "l2_rerank_encoder": run_config.l2_rerank_encoder,
+            "l2_rerank_query_mode": run_config.l2_rerank_query_mode,
             "top_l2_segments": run_config.top_l2_segments,
             "top_l3_segments": run_config.top_l3_segments,
             "l3_rerank_keep": run_config.l3_rerank_keep,

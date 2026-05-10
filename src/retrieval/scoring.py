@@ -6,7 +6,36 @@ from PIL import Image
 
 from segmentation import Segment, segment_fixed_windows
 
+from .faiss_index import build_ip_index, search_ip_index, tensor_to_float32_numpy
 from .types import FrameHit, PipelineConfig, SampledVideo, SegmentHit
+
+
+def _inner_product_topk(
+    *,
+    embeddings: torch.Tensor,
+    query_embedding: torch.Tensor,
+    top_k: int,
+    backend: str = "torch",
+) -> tuple[np.ndarray, np.ndarray]:
+    if top_k <= 0 or embeddings.numel() == 0:
+        return np.empty((0,), dtype=np.float32), np.empty((0,), dtype=np.int64)
+
+    k = min(int(top_k), int(embeddings.shape[0]))
+    if backend == "torch":
+        scores = torch.matmul(embeddings, query_embedding).detach().float().cpu().numpy()
+        order = np.argsort(-scores)[:k].astype(np.int64, copy=False)
+        return scores[order].astype(np.float32, copy=False), order
+
+    if backend == "faiss":
+        xb = tensor_to_float32_numpy(embeddings)
+        xq = tensor_to_float32_numpy(query_embedding).reshape(1, -1)
+        if xb.ndim != 2:
+            raise ValueError(f"Expected 2D embedding matrix, got shape {xb.shape}")
+        if xq.shape[1] != xb.shape[1]:
+            raise ValueError(f"Query dimension {xq.shape[1]} does not match embedding dimension {xb.shape[1]}")
+        return search_ip_index(build_ip_index(embeddings), query_embedding, k)
+
+    raise ValueError(f"Unsupported vector backend: {backend}")
 
 
 def build_window_segments(sampled_video: SampledVideo, config: PipelineConfig) -> list[Segment]:
@@ -132,18 +161,24 @@ def retrieve_top_segments(
     segment_embeddings: torch.Tensor,
     segments: list[Segment],
     top_k: int,
+    *,
+    backend: str = "torch",
 ) -> list[SegmentHit]:
     if len(segments) == 0 or segment_embeddings.numel() == 0:
         return []
-    scores = torch.matmul(segment_embeddings, query_embedding).cpu().numpy()
-    order = np.argsort(-scores)
+    scores, order = _inner_product_topk(
+        embeddings=segment_embeddings,
+        query_embedding=query_embedding,
+        top_k=top_k,
+        backend=backend,
+    )
     results: list[SegmentHit] = []
-    for idx in order[:top_k]:
+    for score, idx in zip(scores, order, strict=False):
         segment = segments[int(idx)]
         results.append(
             SegmentHit(
                 segment_id=segment.segment_id,
-                score=float(scores[int(idx)]),
+                score=float(score),
                 start_index=segment.start_index,
                 end_index=segment.end_index,
                 start_time_sec=segment.start_time_sec,
@@ -167,6 +202,7 @@ def retrieve_top_frames(
     *,
     top_k: int,
     allowed_indices: list[int] | None = None,
+    backend: str = "torch",
 ) -> list[FrameHit]:
     if frame_embeddings.numel() == 0:
         return []
@@ -179,17 +215,21 @@ def retrieve_top_frames(
         return []
 
     candidate_tensor = frame_embeddings[candidate_indices]
-    scores = torch.matmul(candidate_tensor, query_embedding).cpu().numpy()
-    order = np.argsort(-scores)[:top_k]
+    scores, order = _inner_product_topk(
+        embeddings=candidate_tensor,
+        query_embedding=query_embedding,
+        top_k=top_k,
+        backend=backend,
+    )
 
     hits: list[FrameHit] = []
-    for rank_index in order:
+    for score, rank_index in zip(scores, order, strict=False):
         frame_index = candidate_indices[int(rank_index)]
         hits.append(
             FrameHit(
                 frame_index=frame_index,
                 time_sec=float(timestamps[frame_index]),
-                score=float(scores[int(rank_index)]),
+                score=float(score),
             )
         )
     hits.sort(key=lambda hit: hit.frame_index)

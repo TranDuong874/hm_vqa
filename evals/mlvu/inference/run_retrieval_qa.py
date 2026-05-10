@@ -10,18 +10,18 @@ from evals.common.retrieval_ablation_runner import (
     build_retrieval_run_config,
     run_retrieval_ablation,
 )
-from evals.video_mme.dataset import (
+from evals.mlvu.dataset import (
     DEFAULT_DERIVED_CACHE_ROOT,
     DEFAULT_FEATURE_ROOT,
     DEFAULT_MANIFEST,
     DEFAULT_OUTPUT_ROOT,
     DEFAULT_VIDEO_ROOT,
-    load_video_mme_examples,
+    load_mlvu_examples,
 )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run retrieval ablations on a Video-MME manifest.")
+    parser = argparse.ArgumentParser(description="Run retrieval QA ablations on an MLVU MCQ manifest.")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--video-root", type=Path, default=DEFAULT_VIDEO_ROOT)
     parser.add_argument("--feature-root", type=Path, default=DEFAULT_FEATURE_ROOT)
@@ -30,7 +30,7 @@ def main() -> None:
     add_retrieval_ablation_args(parser)
     args = parser.parse_args()
 
-    examples = load_video_mme_examples(args.manifest, video_root=args.video_root, limit=args.limit)
+    examples = load_mlvu_examples(args.manifest, video_root=args.video_root, limit=args.limit)
     run_config = build_retrieval_run_config(args)
     method_output_root = args.output_root / build_retrieval_output_name(model_id=args.model_id, run_config=run_config)
     run_retrieval_ablation(

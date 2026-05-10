@@ -1,0 +1,10 @@
+{
+  "name": "hd_epic_fgal60_50q_per_video",
+  "dataset": "hd_epic",
+  "split": "fgal60_50q_per_video",
+  "manifest": "results/hd_epic/manifests/fgal_60videos_50q_per_video_v1.json",
+  "video_root": "dataset/hd_epic_structured",
+  "feature_root": "local_storage/flat_files/hd_epic_features_1fps_fgal60_v1",
+  "derived_root": "local_storage/flat_files/hd_epic_derived_ablation_1fps_fgal60_v1",
+  "output_root": "results/hd_epic/ablations_fgal60_50q_per_video"
+}

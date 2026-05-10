@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HM-VQA Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <main class="chat-panel">
+        <header class="topbar">
+          <div>
+            <h1>HM-VQA Demo</h1>
+            <p id="sessionStatus">Upload a video to start a session.</p>
+          </div>
+          <button id="newSessionBtn" class="ghost-button" type="button">New Video</button>
+        </header>
+
+        <section id="dropZone" class="drop-zone">
+          <input id="videoInput" type="file" accept="video/*" hidden />
+          <div class="drop-content">
+            <div class="upload-mark">+</div>
+            <h2>Drop a video here</h2>
+            <p>or choose a file from your computer.</p>
+            <label class="upload-setting">
+              Sampling FPS
+              <input id="sampleFpsInput" type="number" min="0.25" max="4" step="0.25" value="1" />
+            </label>
+            <button id="chooseVideoBtn" class="primary-button" type="button">Choose Video</button>
+          </div>
+        </section>
+
+        <section id="progressPanel" class="progress-panel hidden">
+          <div class="progress-header">
+            <span id="progressLabel">Processing video</span>
+            <strong id="progressValue">0%</strong>
+          </div>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <p id="progressMessage">Waiting for ingestion.</p>
+        </section>
+
+        <section id="messages" class="messages"></section>
+
+        <form id="chatForm" class="chat-form">
+          <button id="attachBtn" class="icon-button" type="button" title="Upload video">+</button>
+          <textarea id="questionInput" rows="1" placeholder="Ask about the uploaded video..." disabled></textarea>
+          <button id="sendBtn" class="send-button" type="submit" disabled>Send</button>
+        </form>
+      </main>
+
+      <aside class="side-panel">
+        <section class="settings">
+          <h2>Model</h2>
+          <label>
+            Backend
+            <select id="backendSelect">
+              <option value="api">API</option>
+              <option value="local">Local</option>
+            </select>
+          </label>
+          <label>
+            Model ID
+            <input id="modelIdInput" type="text" value="Qwen/Qwen3-VL-8B-Instruct" />
+          </label>
+          <label>
+            API Base URL
+            <input id="apiBaseInput" type="text" value="http://108.255.76.60:53861/v1" />
+          </label>
+          <label>
+            API Key Env
+            <input id="apiEnvInput" type="text" value="HMVQA_DEMO_API_KEY" />
+          </label>
+          <label>
+            API Key
+            <input id="apiKeyInput" type="password" placeholder="Optional for local demo" />
+          </label>
+          <label class="checkbox-row">
+            <input id="thinkingInput" type="checkbox" />
+            Enable thinking
+          </label>
+          <label>
+            Evidence mode
+            <select id="evidenceModeSelect">
+              <option value="hm">HM-VQA retrieval</option>
+              <option value="uniform">Uniform sampling</option>
+            </select>
+          </label>
+          <label>
+            Frames
+            <input id="evidenceFramesInput" type="number" min="1" max="64" step="1" value="16" />
+          </label>
+        </section>
+
+        <section class="evidence">
+          <div class="evidence-header">
+            <h2>Evidence</h2>
+            <span id="evidenceCount">0 frames</span>
+          </div>
+          <div id="evidenceList" class="evidence-list">
+            <p class="empty-state">Evidence frames will appear here after each answer.</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
