@@ -212,7 +212,7 @@ function renderEvidence(items) {
 
 async function uploadVideo(file) {
   if (!file) return;
-  const sampleFps = Math.max(0.25, Math.min(4, Number.parseFloat(sampleFpsInput.value || "1")));
+  const sampleFps = Math.max(0.25, Math.min(60, Number.parseFloat(sampleFpsInput.value || "1")));
   sampleFpsInput.value = String(sampleFps);
   resetForNewVideo(false);
   appendMessage("system", `Uploading ${file.name} at ${sampleFps} FPS`);
