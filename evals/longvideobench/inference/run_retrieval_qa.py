@@ -39,6 +39,7 @@ from evals.common.vlm_baseline_runner import (
 )
 from ingestion import OpenCLIPEncoder
 from ingestion.viclip import ViCLIPEncoder
+from evals.common.fused_adaptive import segment_fused_adaptive_peaks
 from evals.common.video_sampling import sample_uniform_video_frames as _sample_uniform_video_frames
 from retrieval import (
     adapt_query_embedding_for_segment_pooling,
@@ -52,7 +53,7 @@ from retrieval import (
     retrieve_top_segments_from_frame_scores,
 )
 from retrieval.types import FrameHit, PipelineConfig, SegmentHit
-from segmentation import Segment, segment_fused_adaptive_peaks, segment_l3_local_contrast_windows
+from segmentation import Segment, segment_l3_local_contrast_windows
 from segmentation.video import compute_motion_energy_for_frame_indices
 
 
