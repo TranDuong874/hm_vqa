@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HM-VQA Runtime</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20260526c" />
+  </head>
+  <body>
+    <div class="app">
+      <main class="chat-panel">
+        <header class="topbar">
+          <div>
+            <h1>HM-VQA Runtime</h1>
+            <p id="sessionStatus">Upload a video to start a session.</p>
+          </div>
+          <button id="newSessionBtn" class="ghost-button" type="button">New Video</button>
+        </header>
+
+        <section id="dropZone" class="drop-zone">
+          <input id="videoInput" type="file" accept="video/*" hidden />
+          <div class="drop-content">
+            <div class="upload-mark">+</div>
+            <h2>Drop a video here</h2>
+            <p>or choose a file from your computer.</p>
+            <label class="upload-setting">
+              Sampling FPS
+              <input id="sampleFpsInput" type="number" min="0.25" max="4" step="0.25" value="1" />
+            </label>
+            <button id="chooseVideoBtn" class="primary-button" type="button">Choose Video</button>
+          </div>
+        </section>
+
+        <section id="progressPanel" class="progress-panel hidden">
+          <div class="progress-header">
+            <span id="progressLabel">Processing video</span>
+            <strong id="progressValue">0%</strong>
+          </div>
+          <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+          <p id="progressMessage">Waiting for ingestion.</p>
+        </section>
+
+        <section id="messages" class="messages"></section>
+
+        <form id="chatForm" class="chat-form">
+          <button id="attachBtn" class="icon-button" type="button" title="Upload video">+</button>
+          <textarea id="questionInput" rows="1" placeholder="Ask about the uploaded video..." disabled></textarea>
+          <button id="sendBtn" class="send-button" type="submit" disabled>Send</button>
+        </form>
+      </main>
+
+      <aside class="side-panel">
+        <section class="settings">
+          <h2>Model</h2>
+          <label>Mode
+            <select id="modeSelect">
+              <option value="hmvqa">HM-VQA retrieval</option>
+              <option value="pure_vlm">Pure VLM / uniform</option>
+            </select>
+          </label>
+          <label>Answer model
+            <select id="modelIdInput">
+              <option value="qwen-vl-max-latest">Qwen VL Max</option>
+              <option value="qwen-vl-plus-latest">Qwen VL Plus</option>
+              <option value="qwen2.5-vl-72b-instruct">Qwen2.5 VL 72B</option>
+            </select>
+          </label>
+          <label class="checkbox-row">
+            <input id="thinkingInput" type="checkbox" />
+            Enable thinking
+          </label>
+          <label>Frames
+            <input id="evidenceFramesInput" type="number" min="1" max="64" step="1" value="16" />
+          </label>
+          <div class="button-row">
+            <button id="clearSessionBtn" class="ghost-button" type="button">Clear Session</button>
+            <button id="clearCacheBtn" class="ghost-button danger" type="button">Clear Cache</button>
+          </div>
+        </section>
+
+        <section class="settings session-panel">
+          <div class="section-header">
+            <h2>Sessions</h2>
+            <button id="refreshSessionsBtn" class="ghost-button small" type="button">Refresh</button>
+          </div>
+          <div id="sessionList" class="session-list"></div>
+        </section>
+      </aside>
+    </div>
+    <div id="imageViewer" class="image-viewer hidden" role="dialog" aria-modal="true" aria-label="Evidence image viewer">
+      <button id="viewerCloseBtn" class="viewer-close" type="button" aria-label="Close viewer">×</button>
+      <button id="viewerPrevBtn" class="viewer-nav viewer-prev" type="button" aria-label="Previous image">‹</button>
+      <figure class="viewer-figure">
+        <img id="viewerImage" alt="Evidence frame preview" />
+        <figcaption id="viewerCaption"></figcaption>
+      </figure>
+      <button id="viewerNextBtn" class="viewer-nav viewer-next" type="button" aria-label="Next image">›</button>
+    </div>
+    <script src="/static/app.js?v=20260526c"></script>
+  </body>
+</html>
